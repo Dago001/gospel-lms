@@ -8,7 +8,7 @@ test.describe('staff areas', () => {
     await page.getByRole('link', { name: 'My courses' }).first().click();
     await expect(page.getByRole('link', { name: /Introduction to the Gospels/ })).toBeVisible();
     await page.goto('/admin');
-    await expect(page.getByText('You do not have access to this page')).toBeVisible();
+    await expect(page.getByText(/You do not have access to this/)).toBeVisible();
   });
 
   test('administrators sign in with two-step verification and manage users', async ({ page }) => {
@@ -28,6 +28,6 @@ test.describe('staff areas', () => {
     await expect(page.getByRole('link', { name: 'Roles & permissions' })).toHaveCount(0);
     await expect(page.getByRole('link', { name: 'Audit log' })).toHaveCount(0);
     await page.goto('/admin/roles');
-    await expect(page.getByText('You do not have access to this page')).toBeVisible();
+    await expect(page.getByText(/You do not have access to this/)).toBeVisible();
   });
 });

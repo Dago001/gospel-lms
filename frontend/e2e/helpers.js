@@ -39,7 +39,7 @@ export async function registerStudent(page, name = 'E2E Student') {
   await page.goto('/register');
   await page.getByLabel('Full name').fill(name);
   await page.getByLabel('Email').fill(email);
-  await page.getByLabel('Password', { exact: true }).fill('Str0ng-Passw0rd!');
+  await page.getByLabel(/^Password/).fill('Str0ng-Passw0rd!');
   await page.getByLabel('Confirm password').fill('Str0ng-Passw0rd!');
   await page.getByLabel(/I agree to the/).check();
   await page.getByRole('button', { name: 'Create account' }).click();

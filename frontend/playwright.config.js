@@ -18,7 +18,7 @@ export default defineConfig({
   use: { baseURL: 'http://localhost:5174', launchOptions: { executablePath: '/opt/pw-browsers/chromium-1194/chrome-linux/chrome', args: ['--no-sandbox'] }, trace: 'retain-on-failure', screenshot: 'only-on-failure' },
   webServer: [
     { command: 'node e2e/fake-paystack.mjs', port: 9099, reuseExistingServer: true },
-    { command: 'php artisan serve --port=8001', cwd: '../backend', port: 8001, env: dbEnv, reuseExistingServer: false, timeout: 30_000 },
+    { command: 'php -S 127.0.0.1:8001 -t public public/index.php', cwd: '../backend', port: 8001, env: { ...dbEnv, PHP_CLI_SERVER_WORKERS: '4' }, reuseExistingServer: false, timeout: 30_000 },
     { command: 'npx vite --port 5174 --strictPort', port: 5174, env: { VITE_API_TARGET: 'http://127.0.0.1:8001' }, reuseExistingServer: false, timeout: 30_000 },
   ],
 });

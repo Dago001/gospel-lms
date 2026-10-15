@@ -19,9 +19,9 @@ test.describe('paid enrolment through the (fake) Paystack gateway', () => {
     await expect(page.getByRole('link', { name: 'E2E Paid Course' })).toBeVisible();
 
     await page.goto('/student/billing');
-    await expect(page.getByText('Paid')).toBeVisible();
+    await expect(page.getByText('Paid', { exact: true })).toBeVisible();
     const href = await page.getByRole('link', { name: 'Receipt (PDF)' }).getAttribute('href');
-    const res = await page.request.get(href);
+    const res = await page.request.get(href, { headers: { referer: page.url() } });
     expect(res.status()).toBe(200);
     expect((await res.body()).subarray(0, 4).toString()).toBe('%PDF');
   });

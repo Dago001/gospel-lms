@@ -35,7 +35,9 @@ test.describe('accounts and access control', () => {
   test('protected pages send guests to sign in and return them afterwards', async ({ page }) => {
     await page.goto('/student/courses');
     await expect(page).toHaveURL(/\/login\?next=%2Fstudent%2Fcourses/);
-    await signIn(page, 'student@demo.test');
+    await page.getByLabel('Email').fill('student@demo.test');
+    await page.getByLabel('Password').fill(PASSWORD);
+    await page.getByRole('button', { name: 'Sign in' }).click();
     await expect(page).toHaveURL(/\/student\/courses/);
   });
 

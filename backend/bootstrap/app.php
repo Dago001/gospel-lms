@@ -26,6 +26,8 @@ return Application::configure(basePath: dirname(__DIR__))
             'permission' => RequirePermission::class,
             'active.session' => EnsureActiveSession::class,
         ]);
+        // API callers get a JSON 401, never a redirect to a (non-existent) server-side login route.
+        $middleware->redirectGuestsTo(fn (Request $request) => $request->is('api/*') ? null : '/login');
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         \Sentry\Laravel\Integration::handles($exceptions);   // no-op unless SENTRY_LARAVEL_DSN is set

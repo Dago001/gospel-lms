@@ -20,7 +20,7 @@ export function AuthProvider({ children }) {
     return () => authEvents.removeEventListener('expired', onExpired);
   }, [qc]);
 
-  const afterLogin = useCallback((u) => { qc.removeQueries({ predicate: (x) => x.queryKey[0] !== 'public' }); qc.setQueryData(['me'], u); return u; }, [qc]);
+  const afterLogin = useCallback((u) => { qc.removeQueries({ predicate: (x) => x.queryKey[0] !== 'public' && x.queryKey[0] !== 'me' }); qc.setQueryData(['me'], u); return u; }, [qc]);
   const login = useCallback(async (email, password) => {
     const r = await post('/auth/login', { email, password });
     if (r.status === 'authenticated') afterLogin(r.user);
