@@ -10,6 +10,7 @@ use App\Http\Controllers\Api\V1\Learn\CompletionController;
 use App\Http\Controllers\Api\V1\Learn\LearnController;
 use App\Http\Controllers\Api\V1\Learn\PlaybackController;
 use App\Http\Controllers\Api\V1\VideoWebhookController;
+use App\Http\Controllers\Api\V1\Comms;
 use App\Http\Controllers\Api\V1\ZoomWebhookController;
 use App\Http\Controllers\Api\V1\Learn\LiveLearnController;
 use App\Http\Controllers\Api\V1\PaymentWebhookController;
@@ -43,6 +44,7 @@ Route::prefix('v1')->group(function () {
         Route::get('courses/{slug}', [CatalogueController::class, 'course']);
         Route::get('lecturers', [CatalogueController::class, 'lecturers']);
         Route::get('lecturers/{id}', [CatalogueController::class, 'lecturer']);
+        Route::post('contact', [Comms\SupportController::class, 'contact'])->middleware('throttle:5,60,contactform');
         Route::get('certificates/verify/{code}', [CertificateVerifyController::class, 'show'])->middleware('throttle:30,1,r5');
     });
 
@@ -65,6 +67,22 @@ Route::prefix('v1')->group(function () {
             Route::get('photo', [AccountController::class, 'photo']);
             Route::get('sessions', [AccountController::class, 'sessions']);
             Route::delete('sessions/{session}', [AccountController::class, 'revokeSession']);
+        });
+
+        // Notification centre, platform announcements, support (any signed-in user)
+        Route::get('notifications', [Comms\NotificationController::class, 'index']);
+        Route::get('notifications/unread-count', [Comms\NotificationController::class, 'unreadCount']);
+        Route::get('notifications/preferences', [Comms\NotificationController::class, 'preferences']);
+        Route::put('notifications/preferences', [Comms\NotificationController::class, 'updatePreferences']);
+        Route::post('notifications/read-all', [Comms\NotificationController::class, 'readAll']);
+        Route::post('notifications/{id}/read', [Comms\NotificationController::class, 'read']);
+        Route::get('announcements', [Comms\AnnouncementController::class, 'platform']);
+        Route::prefix('support/tickets')->group(function () {
+            Route::get('/', [Comms\SupportController::class, 'mine']);
+            Route::post('/', [Comms\SupportController::class, 'create'])->middleware('throttle:10,60,ticketcreate');
+            Route::get('{ticket}', [Comms\SupportController::class, 'show']);
+            Route::post('{ticket}/messages', [Comms\SupportController::class, 'reply'])->middleware('throttle:30,60,ticketreply');
+            Route::post('{ticket}/close', [Comms\SupportController::class, 'close']);
         });
 
         // Checkout and billing (students)
@@ -105,6 +123,15 @@ Route::prefix('v1')->group(function () {
             Route::get('courses/{course}/live-sessions', [LiveLearnController::class, 'index']);
             Route::get('live-sessions/{session}/join', [LiveLearnController::class, 'join'])->middleware('throttle:30,1,livejoin');
             Route::get('live-sessions/{session}/recordings', [LiveLearnController::class, 'recordings']);
+            Route::get('courses/{course}/announcements', [Comms\AnnouncementController::class, 'forCourse']);
+            Route::get('courses/{course}/threads', [Comms\ForumController::class, 'index']);
+            Route::post('courses/{course}/threads', [Comms\ForumController::class, 'store'])->middleware('throttle:10,10,threadcreate');
+            Route::get('threads/{thread}', [Comms\ForumController::class, 'show']);
+            Route::post('threads/{thread}/posts', [Comms\ForumController::class, 'reply'])->middleware('throttle:30,10,threadreply');
+            Route::put('threads/{thread}', [Comms\ForumController::class, 'moderate']);
+            Route::delete('threads/{thread}', [Comms\ForumController::class, 'deleteThread']);
+            Route::put('posts/{post}', [Comms\ForumController::class, 'editPost']);
+            Route::delete('posts/{post}', [Comms\ForumController::class, 'deletePost']);
             Route::get('resources/{resource}/download', [LearnController::class, 'downloadResource'])->middleware('throttle:60,1,r22');
         });
 
@@ -175,6 +202,8 @@ Route::prefix('v1')->group(function () {
             Route::post('live-sessions/{session}/sync-attendance', [Manage\LiveSessionController::class, 'syncNow'])->middleware('throttle:10,1,livesync');
             Route::get('live-sessions/{session}/recordings', [Manage\LiveSessionController::class, 'recordings']);
             Route::put('recordings/{recording}', [Manage\LiveSessionController::class, 'publishRecording']);
+            Route::post('courses/{course}/announcements', [Comms\AnnouncementController::class, 'store'])->middleware('throttle:20,60,annpost');
+            Route::delete('announcements/{announcement}', [Comms\AnnouncementController::class, 'destroy']);
             Route::post('lessons/{lesson}/video/upload', [Manage\VideoController::class, 'authoriseUpload'])->middleware('throttle:20,1,r26');
             Route::get('video-assets/{asset}', [Manage\VideoController::class, 'status']);
             Route::post('lessons/{lesson}/resources', [Manage\CurriculumController::class, 'uploadResource'])->middleware('throttle:30,1,r27');
@@ -218,6 +247,18 @@ Route::prefix('v1')->group(function () {
                 Route::get('certificates', [Admin\CertificateController::class, 'index']);
                 Route::post('certificates/{certificate}/revoke', [Admin\CertificateController::class, 'revoke'])->middleware('throttle:20,1,r31');
                 Route::post('certificates/{certificate}/reissue', [Admin\CertificateController::class, 'reissue'])->middleware('throttle:20,1,r32');
+            });
+            Route::middleware('permission:support.manage')->group(function () {
+                Route::get('support/tickets', [Comms\SupportController::class, 'staffIndex']);
+                Route::get('support/tickets/{ticket}', [Comms\SupportController::class, 'staffShow']);
+                Route::post('support/tickets/{ticket}/messages', [Comms\SupportController::class, 'staffReply'])->middleware('throttle:60,1,staffreply');
+                Route::put('support/tickets/{ticket}', [Comms\SupportController::class, 'staffUpdate']);
+            });
+            Route::middleware('permission:notifications.manage')->group(function () {
+                Route::get('notifications/log', [Admin\NotificationAdminController::class, 'log']);
+                Route::get('notifications/summary', [Admin\NotificationAdminController::class, 'summary']);
+                Route::post('announcements', [Comms\AnnouncementController::class, 'storePlatform'])->middleware('throttle:10,60,platformann');
+                Route::delete('announcements/{announcement}', [Comms\AnnouncementController::class, 'destroyPlatform']);
             });
             Route::middleware('permission:categories.manage')->group(function () {
                 Route::get('categories', [Admin\CategoryController::class, 'index']);

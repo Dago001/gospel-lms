@@ -16,6 +16,7 @@ return Application::configure(basePath: dirname(__DIR__))
         commands: __DIR__.'/../routes/console.php',
         health: '/up',
     )
+    ->withEvents(discover: false)   // listeners are registered explicitly in AppServiceProvider; discovery would register them twice
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->statefulApi(); // first-party SPA: cookie sessions + CSRF via Sanctum
         $middleware->trustProxies(at: '*', headers: Request::HEADER_X_FORWARDED_FOR | Request::HEADER_X_FORWARDED_PROTO | Request::HEADER_X_FORWARDED_HOST | Request::HEADER_X_FORWARDED_PORT);

@@ -20,6 +20,8 @@ class AppServiceProvider extends ServiceProvider
 
     public function boot(): void
     {
+        \Illuminate\Support\Facades\Event::listen(\Illuminate\Notifications\Events\NotificationSending::class, \App\Listeners\ApplyNotificationPreferences::class);
+        \Illuminate\Support\Facades\Event::listen([\Illuminate\Notifications\Events\NotificationSent::class, \Illuminate\Notifications\Events\NotificationFailed::class], \App\Listeners\LogNotificationDelivery::class);
         // Explicit registration: completion must never depend on listener auto-discovery.
         \Illuminate\Support\Facades\Event::listen([\App\Events\LessonCompleted::class, \App\Events\GradePublished::class], \App\Listeners\ReevaluateCompletion::class);
 

@@ -13,7 +13,7 @@ Last full backend run: `php vendor/bin/pest` -> 133 passed (PostgreSQL 16, PHP 8
 | 6 | Cloudflare Stream hosting, YouTube, server-validated progress, lesson locking | Done+tested against fakes; real Cloudflare account run pending credentials. See docs/VIDEO.md |
 | 7 | Assignments, rubrics, late policy, auditable grading | Done+tested |
 | 8 | Question banks, quizzes, timed exams, auto + manual marking, retakes, supplementary | Done+tested |
-| 9 | Zoom, attendance, notification centre | Not started (notifications table + payment notification exist) |
+| 9 | Zoom live classes + attendance, notification centre + preferences + delivery log, announcements, forums, support desk, reminders | Done+tested (Zoom HTTP faked; real account run pending credentials) |
 | 10 | Completion engine, certificate PDFs + QR, public verification, revocation | Done+tested |
 | 11 | Admin portal UI, reports, accessibility, load tests | Not started |
 | 12 | Deployment, backup/restore test | Not started |
