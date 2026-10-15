@@ -12,3 +12,5 @@
 10. **ClamAV** scanning is optional and off by default; without it uploads are checked by size, type sniffing and extension only.
 11. Dev-only seeders (`DemoSeeder`, `E2eSeeder`) refuse to run in production but must still not be invoked by deploy scripts.
 12. The Windows local-install script (`scripts/setup-windows.ps1`) has not been run on a Windows machine.
+
+13. **The help assistant is rules-based**, not generative AI: it matches keywords against about 20 curated topics plus catalogue search, so unusual phrasing falls back to "I am not sure" with suggestions and a route to a human. Topic wording (especially refunds and policy statements) must be reviewed by the academy. There is no live-agent chat or conversation history on the server.

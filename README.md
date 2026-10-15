@@ -18,7 +18,7 @@ Demo accounts (local only): `student@`, `lecturer@`, `admin@`, `finance@demo.tes
 
 ## Tests
 ```bash
-cd backend && php artisan test         # 211 tests
+cd backend && php artisan test         # 239 tests
 cd frontend && npm test                # unit
 cd frontend && npx playwright test     # e2e + axe (needs Chromium; set E2E_CHROMIUM_PATH if Playwright's own browser is not installed)
 ```

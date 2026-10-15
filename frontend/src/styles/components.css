@@ -146,7 +146,7 @@
 .modal-body { padding: var(--s-5); overflow: auto; }
 .modal-foot { padding: var(--s-4) var(--s-5); border-top: var(--border-w) solid var(--border); display: flex; justify-content: flex-end; gap: var(--s-3); flex-wrap: wrap; }
 .drawer { position: fixed; top: 0; bottom: 0; right: 0; width: min(440px, 100%); background: var(--white); box-shadow: var(--shadow-overlay); z-index: 51; display: flex; flex-direction: column; }
-.toasts { position: fixed; right: var(--s-4); bottom: var(--s-4); z-index: 60; display: flex; flex-direction: column; gap: var(--s-2); max-width: min(380px, calc(100vw - 32px)); }
+.toasts { position: fixed; right: var(--s-4); bottom: 84px; z-index: 60; display: flex; flex-direction: column; gap: var(--s-2); max-width: min(380px, calc(100vw - 32px)); }
 .toast { background: var(--text); color: var(--white); padding: var(--s-3) var(--s-4); border-radius: var(--radius); font-size: var(--fs-small); box-shadow: var(--shadow-overlay); display: flex; gap: var(--s-3); align-items: flex-start; border-left: 4px solid var(--gold); }
 .toast.error { border-left-color: #ff8a80; } .toast.success { border-left-color: #7fd18a; }
 .toast button { background: none; border: 0; color: inherit; cursor: pointer; margin-left: auto; font-size: 1.1rem; line-height: 1; }

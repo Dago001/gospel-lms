@@ -6,6 +6,7 @@ import { AuthProvider } from './auth/AuthContext.jsx';
 import { ToastProvider } from './components/ui/Toast.jsx';
 import { ApiError } from './api/client.js';
 import App from './App.jsx';
+import { ChatWidget } from './components/ChatWidget.jsx';
 import { ErrorBoundary } from './components/ErrorBoundary.jsx';
 import './styles/tokens.css';
 import './styles/base.css';
@@ -27,7 +28,7 @@ createRoot(document.getElementById('root')).render(
     <BrowserRouter>
       <QueryClientProvider client={queryClient}>
         <ToastProvider>
-          <ErrorBoundary><AuthProvider><App /></AuthProvider></ErrorBoundary>
+          <ErrorBoundary><AuthProvider><App /><ChatWidget /></AuthProvider></ErrorBoundary>
         </ToastProvider>
       </QueryClientProvider>
     </BrowserRouter>

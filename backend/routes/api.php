@@ -17,6 +17,7 @@ use App\Http\Controllers\Api\V1\ZoomWebhookController;
 use App\Http\Controllers\Api\V1\Learn\LiveLearnController;
 use App\Http\Controllers\Api\V1\PaymentWebhookController;
 use App\Http\Controllers\Api\V1\Manage;
+use App\Http\Controllers\Api\V1\ChatController;
 use App\Http\Controllers\Api\V1\Public\CatalogueController;
 use App\Http\Controllers\Api\V1\Public\CertificateVerifyController;
 use App\Http\Controllers\Api\V1\TwoFactorController;
@@ -39,6 +40,10 @@ Route::prefix('v1')->group(function () {
 
     Route::post('webhooks/zoom', [ZoomWebhookController::class, 'handle'])->middleware('throttle:300,1,zoomhook');
     Route::post('webhooks/video/cloudflare', [VideoWebhookController::class, 'cloudflare'])->middleware('throttle:300,1,r3');
+
+    // Help assistant (public; rate limited; stateless: nothing is stored)
+    Route::get('chat/greeting', [ChatController::class, 'greeting'])->middleware('throttle:60,1,chatgreet');
+    Route::post('chat/message', [ChatController::class, 'message'])->middleware('throttle:chat');
 
     // Public catalogue (published content only)
     Route::prefix('public')->middleware('throttle:120,1,r4')->group(function () {

@@ -14,7 +14,7 @@ Repository: https://github.com/Dago001/gospel-lms (branch `main`). Written hones
 
 | Suite | Result |
 |---|---|
-| Backend Pest, real PostgreSQL | 211 passed, 1,415 assertions (includes real `pg_dump`/`pg_restore` backup, tamper and incomplete-dump tests; DB-trigger immutability tests; payment amount/currency/reference/mode mismatch, replay and forged-webhook tests; exam deadline and answer-key leakage tests; progress-cheating tests; authorisation tests) |
+| Backend Pest, real PostgreSQL | 239 passed, 1,557 assertions (includes real `pg_dump`/`pg_restore` backup, tamper and incomplete-dump tests; DB-trigger immutability tests; payment amount/currency/reference/mode mismatch, replay and forged-webhook tests; exam deadline and answer-key leakage tests; progress-cheating tests; authorisation tests) |
 | Frontend Vitest | 20 passed (API client incl. CSRF/419 retry/401 handling, formatters and money parsing, open-redirect guard, modal focus/Esc) |
 | Playwright E2E, Chromium, real backend + DB + **fake Paystack server** | 73 passed: guest/redirect/access control, registration and verification gate, ordered lesson unlock and server-decided completion, timed quiz autosave/reload/submit, paid checkout → verification → access → receipt PDF, declined payment, forged callback, lecturer/admin(MFA)/finance areas, no horizontal overflow at 390/768/1366/1920, mobile drawer |
 | axe-core WCAG 2.0–2.2 A/AA rules | 0 violations on 9 public and 9 signed-in pages (12 checks) |

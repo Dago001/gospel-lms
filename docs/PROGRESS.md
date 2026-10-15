@@ -6,9 +6,9 @@ Status key: **Done+tested**: implemented and covered by automated tests that pas
 
 | Suite | Command | Result |
 |---|---|---|
-| Backend (Pest on real PostgreSQL 16, PHP 8.3, Laravel 13.36), includes real `pg_dump`/`pg_restore` backup tests | `cd backend && php artisan test` | **211 passed** (1,415 assertions) |
+| Backend (Pest on real PostgreSQL 16, PHP 8.3, Laravel 13.36), includes real `pg_dump`/`pg_restore` backup tests | `cd backend && php artisan test` | **239 passed** (1,557 assertions) |
 | Frontend unit (Vitest + Testing Library) | `cd frontend && npm test` | **20 passed** |
-| Browser end-to-end (Playwright/Chromium against the real backend, real DB, **fake Paystack server**) | `cd frontend && npx playwright test` | **73 passed** (learning, payments, staff, responsive at 390/768/1366/1920, plus 12 axe accessibility checks) |
+| Browser end-to-end (Playwright/Chromium against the real backend, real DB, **fake Paystack server**) | `cd frontend && npx playwright test` | **79 passed** (learning, payments, staff, responsive at 390/768/1366/1920, plus 12 axe accessibility checks) |
 | Automated accessibility (axe-core, WCAG 2.0/2.1/2.2 A+AA rules) | `e2e/a11y.spec.js` (12 of the 65) | **0 violations** on the 9 public pages and on the student (4), lecturer (2) and admin (3) pages checked |
 | Frontend production build | `npm run build` | passes |
 

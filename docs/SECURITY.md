@@ -16,6 +16,20 @@
 | Abuse | Named per-route rate limits (see `docs/API.md`), contact form honeypot, signed email links |
 | Secrets | Only in `.env`/secret manager; none in the repository; integrations screen never reveals values; logs do not contain card data (cards never touch this system) |
 
+## Help assistant (chatbot)
+
+`POST /api/v1/chat/message` is a **rules-based assistant, not an AI model**: no text is sent to a third party and nothing is generated freely. Answers come from the vetted topic list in `backend/resources/chatbot/knowledge.php`, from read-only catalogue queries (published courses only) and, for a signed-in user, from that user's own enrolments. Controls, each covered by `tests/Feature/ChatAssistantTest.php` and `frontend/e2e/chat.spec.js`:
+
+| Threat | Control |
+|---|---|
+| SQL injection | No raw SQL anywhere in the path. Text is normalised to letters/digits, at most 3 tokens of 2–30 characters are used, and each is a bound parameter to Eloquent (`ilike` with `%`, `_` and `\` escaped), so payloads such as `'; DROP TABLE courses;--`, `' OR 1=1 --`, `UNION SELECT` and `pg_sleep` are inert. Tests assert the tables and row counts are untouched and that `%` does not match every course |
+| XSS / HTML injection | The UI renders replies as React text (no `dangerouslySetInnerHTML`); the server never echoes the raw message, only tokeniser output; tests post `<script>`/`<img onerror>` and assert nothing executes or is reflected |
+| Open redirect / link injection | Server emits only in-app paths and the client re-validates every link against `^/(?!/)…` before rendering |
+| Data exposure | Guests get public information only; "my courses" uses the authenticated user's id (never a client-supplied id); drafts and unpublished courses are never searched; certificate lookup reuses the public verification endpoint's minimal disclosure and logging |
+| Abuse / DoS | 300-character cap (validated, 422 above it), control characters stripped, array/non-string input rejected, limiter of 15 messages/min per user-or-IP and 200/hour per IP |
+| Privacy | Stateless: no conversation tables, no logging of message text. History lives only in the visitor's `sessionStorage` and is cleared with the tab |
+| Prompt injection | Not applicable (no LLM). If an LLM backend is added later it must run behind the same validation, answer only from retrieved published content, have no tool access to user data, and be tested with adversarial prompts |
+
 ## Pre-launch checklist (not yet completed by this repository's author)
 
 - [ ] Independent penetration test / security review of the staging deployment

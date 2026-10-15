@@ -40,6 +40,7 @@ class AppServiceProvider extends ServiceProvider
             Limit::perMinute(5)->by(strtolower((string) $r->input('email')).'|'.$r->ip()),
             Limit::perMinute(30)->by($r->ip()),
         ]);
+        RateLimiter::for('chat', fn (Request $r) => [Limit::perMinute(15)->by('chat|'.($r->user('sanctum')?->id ?? $r->ip())), Limit::perHour(200)->by('chath|'.$r->ip())]);
         RateLimiter::for('register', fn (Request $r) => Limit::perHour(10)->by($r->ip()));
         RateLimiter::for('mfa', fn (Request $r) => Limit::perMinute(5)->by(($r->user()?->id ?? $r->session()->getId()).'|'.$r->ip()));
         RateLimiter::for('password-reset', fn (Request $r) => Limit::perMinute(5)->by($r->ip()));

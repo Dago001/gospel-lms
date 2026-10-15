@@ -284,6 +284,15 @@ Access to the course is granted only after the server verifies the payment with 
 |---|---|---|---|---|
 | POST | `/api/v1/payments/{reference}/verify` | CheckoutController@verify | signed-in, MFA | 20,1,r9 |
 
+### `chat`
+
+| Method | Path | Handler | Access | Throttle |
+|---|---|---|---|---|
+| GET | `/api/v1/chat/greeting` | ChatController@greeting | public | 60,1,chatgreet |
+| POST | `/api/v1/chat/message` | ChatController@message | public (user-aware) | chat (15/min per user or IP, 200/h per IP) |
+
+Body `{"message": "<=300 chars"}`; response `{"data": {"intent", "reply", "cards": [{title, subtitle, url}], "links": [{label, url}], "suggestions": []}}`.
+
 ### `public`
 
 | Method | Path | Handler | Access | Throttle |
