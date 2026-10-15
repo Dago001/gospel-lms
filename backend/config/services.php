@@ -35,6 +35,14 @@ return [
         ],
     ],
 
+    'paystack' => [
+        'secret_key' => env('PAYSTACK_SECRET_KEY'),
+        'public_key' => env('PAYSTACK_PUBLIC_KEY'),
+        'base_url' => env('PAYSTACK_BASE_URL', 'https://api.paystack.co'),
+        'mode' => env('PAYSTACK_MODE', 'test'),           // test | live; must match the key type
+        'webhook_ip_allowlist' => array_filter(explode(',', env('PAYSTACK_WEBHOOK_IPS', ''))),
+    ],
+
     'clamav' => [
         'enabled' => env('CLAMAV_ENABLED', false),
         'socket' => env('CLAMAV_SOCKET', 'unix:///var/run/clamav/clamd.ctl'),

@@ -10,3 +10,5 @@ Artisan::command('inspire', function () {
 use Illuminate\Support\Facades\Schedule;
 
 Schedule::call(fn () => app(\App\Services\CourseWorkflow::class)->publishDue())->name('courses:publish-due')->everyMinute()->withoutOverlapping();
+
+Schedule::command('payments:reconcile')->everyTenMinutes()->withoutOverlapping()->onOneServer();

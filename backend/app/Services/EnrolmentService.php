@@ -36,8 +36,8 @@ class EnrolmentService
             return $existing;
         }
         try {
-            $e = CourseEnrollment::create(['course_id' => $course->id, 'user_id' => $user->id, 'status' => 'active', 'source' => $source,
-                'order_item_id' => $orderItemId, 'enrolled_at' => now()]);
+            $e = \Illuminate\Support\Facades\DB::transaction(fn () => CourseEnrollment::create(['course_id' => $course->id, 'user_id' => $user->id, 'status' => 'active', 'source' => $source,
+                'order_item_id' => $orderItemId, 'enrolled_at' => now()]));   // savepoint keeps an enclosing transaction usable on a lost race
             $this->audit->log('enrolment.created', $e, new: ['source' => $source, 'course_id' => $course->id], actorId: request()?->user()?->id ?? $user->id);
 
             return $e;

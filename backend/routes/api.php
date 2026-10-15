@@ -3,7 +3,9 @@
 use App\Http\Controllers\Api\V1\AccountController;
 use App\Http\Controllers\Api\V1\Admin;
 use App\Http\Controllers\Api\V1\AuthController;
+use App\Http\Controllers\Api\V1\CheckoutController;
 use App\Http\Controllers\Api\V1\Learn\LearnController;
+use App\Http\Controllers\Api\V1\PaymentWebhookController;
 use App\Http\Controllers\Api\V1\Manage;
 use App\Http\Controllers\Api\V1\Public\CatalogueController;
 use App\Http\Controllers\Api\V1\TwoFactorController;
@@ -19,6 +21,9 @@ Route::prefix('v1')->group(function () {
         Route::post('reset-password', [AuthController::class, 'resetPassword'])->middleware('throttle:password-reset');
         Route::get('email/verify/{id}/{hash}', [AuthController::class, 'verifyEmail'])->middleware(['signed', 'throttle:6,1'])->name('verification.verify');
     });
+
+    // Gateway webhook: authenticated by HMAC signature, not by session
+    Route::post('webhooks/paystack', [PaymentWebhookController::class, 'paystack'])->middleware('throttle:300,1');
 
     // Public catalogue (published content only)
     Route::prefix('public')->middleware('throttle:120,1')->group(function () {
@@ -48,6 +53,16 @@ Route::prefix('v1')->group(function () {
             Route::get('photo', [AccountController::class, 'photo']);
             Route::get('sessions', [AccountController::class, 'sessions']);
             Route::delete('sessions/{session}', [AccountController::class, 'revokeSession']);
+        });
+
+        // Checkout and billing (students)
+        Route::middleware('mfa')->group(function () {
+            Route::post('checkout/preview', [CheckoutController::class, 'preview'])->middleware('throttle:30,1');
+            Route::post('checkout', [CheckoutController::class, 'start'])->middleware('throttle:10,1');
+            Route::post('payments/{reference}/verify', [CheckoutController::class, 'verify'])->middleware('throttle:20,1');
+            Route::get('student/orders', [CheckoutController::class, 'orders']);
+            Route::get('student/receipts', [CheckoutController::class, 'receipts']);
+            Route::get('student/receipts/{receipt}/pdf', [CheckoutController::class, 'receiptPdf']);
         });
 
         // Learning (students and staff previewing)
@@ -99,6 +114,27 @@ Route::prefix('v1')->group(function () {
                 Route::put('users/{user}/roles', [Admin\UserController::class, 'updateRoles']);
                 Route::post('users/{user}/suspend', [Admin\UserController::class, 'suspend']);
                 Route::post('users/{user}/reactivate', [Admin\UserController::class, 'reactivate']);
+            });
+            Route::prefix('finance')->group(function () {
+                Route::middleware('permission:finance.view')->group(function () {
+                    Route::get('orders', [Admin\FinanceController::class, 'orders']);
+                    Route::get('payments', [Admin\FinanceController::class, 'payments']);
+                    Route::get('payments/{payment}', [Admin\FinanceController::class, 'payment']);
+                    Route::get('webhooks', [Admin\FinanceController::class, 'webhooks']);
+                    Route::get('exceptions', [Admin\FinanceController::class, 'exceptions']);
+                    Route::get('refunds', [Admin\FinanceController::class, 'refunds']);
+                });
+                Route::middleware('permission:reports.finance')->group(function () {
+                    Route::get('summary', [Admin\FinanceController::class, 'summary']);
+                    Route::get('export', [Admin\FinanceController::class, 'export'])->middleware('throttle:10,1');
+                });
+                Route::post('payments/{payment}/reconcile', [Admin\FinanceController::class, 'reconcile'])->middleware(['permission:finance.reconcile', 'throttle:30,1']);
+                Route::post('payments/{payment}/refunds', [Admin\FinanceController::class, 'refund'])->middleware(['permission:finance.refund', 'throttle:10,1']);
+                Route::middleware('permission:coupons.manage')->group(function () {
+                    Route::get('coupons', [Admin\FinanceController::class, 'coupons']);
+                    Route::post('coupons', [Admin\FinanceController::class, 'storeCoupon']);
+                    Route::put('coupons/{coupon}', [Admin\FinanceController::class, 'updateCoupon']);
+                });
             });
             Route::middleware('permission:categories.manage')->group(function () {
                 Route::get('categories', [Admin\CategoryController::class, 'index']);

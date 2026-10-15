@@ -39,7 +39,7 @@ abstract class TestCase extends BaseTestCase
         $this->seed(RolesAndPermissionsSeeder::class);
     }
 
-    protected function makeUser(string $role = 'student', array $attrs = []): User
+    public function makeUser(string $role = 'student', array $attrs = []): User
     {
         $this->seedRolesOnce();
 
