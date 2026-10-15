@@ -12,3 +12,5 @@ use Illuminate\Support\Facades\Schedule;
 Schedule::call(fn () => app(\App\Services\CourseWorkflow::class)->publishDue())->name('courses:publish-due')->everyMinute()->withoutOverlapping();
 
 Schedule::command('payments:reconcile')->everyTenMinutes()->withoutOverlapping()->onOneServer();
+
+Schedule::call(fn () => app(\App\Services\AssessmentService::class)->expireDue())->name('assessments:expire-attempts')->everyMinute()->withoutOverlapping();
