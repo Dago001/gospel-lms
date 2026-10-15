@@ -1,5 +1,9 @@
 <?php
 
+use App\Http\Middleware\EnsureActiveSession;
+use App\Http\Middleware\EnsureMfa;
+use App\Http\Middleware\RequirePermission;
+use App\Http\Middleware\SecurityHeaders;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
@@ -13,7 +17,14 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
-        //
+        $middleware->statefulApi(); // first-party SPA: cookie sessions + CSRF via Sanctum
+        $middleware->trustProxies(at: '*', headers: Request::HEADER_X_FORWARDED_FOR | Request::HEADER_X_FORWARDED_PROTO | Request::HEADER_X_FORWARDED_HOST | Request::HEADER_X_FORWARDED_PORT);
+        $middleware->append(SecurityHeaders::class);
+        $middleware->alias([
+            'mfa' => EnsureMfa::class,
+            'permission' => RequirePermission::class,
+            'active.session' => EnsureActiveSession::class,
+        ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         $exceptions->shouldRenderJsonWhen(

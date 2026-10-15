@@ -30,6 +30,24 @@ return [
 
     'disks' => [
 
+        // Private documents and media. Local in development; set PRIVATE_DISK_DRIVER=s3 (S3-compatible) in staging/production.
+        'private' => env('PRIVATE_DISK_DRIVER', 'local') === 's3' ? [
+            'driver' => 's3',
+            'key' => env('PRIVATE_S3_KEY'),
+            'secret' => env('PRIVATE_S3_SECRET'),
+            'region' => env('PRIVATE_S3_REGION', 'auto'),
+            'bucket' => env('PRIVATE_S3_BUCKET'),
+            'endpoint' => env('PRIVATE_S3_ENDPOINT'),
+            'use_path_style_endpoint' => env('PRIVATE_S3_PATH_STYLE', true),
+            'visibility' => 'private',
+            'throw' => true,
+        ] : [
+            'driver' => 'local',
+            'root' => storage_path('app/private-files'),
+            'visibility' => 'private',
+            'throw' => true,
+        ],
+
         'local' => [
             'driver' => 'local',
             'root' => storage_path('app/private'),
