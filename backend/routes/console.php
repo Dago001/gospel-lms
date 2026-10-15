@@ -14,3 +14,9 @@ Schedule::call(fn () => app(\App\Services\CourseWorkflow::class)->publishDue())-
 Schedule::command('payments:reconcile')->everyTenMinutes()->withoutOverlapping()->onOneServer();
 
 Schedule::call(fn () => app(\App\Services\AssessmentService::class)->expireDue())->name('assessments:expire-attempts')->everyMinute()->withoutOverlapping();
+
+Schedule::command('reminders:send')->everyFiveMinutes()->withoutOverlapping()->onOneServer();
+Schedule::call(function () {
+    \App\Models\LiveSession::where('provider', 'zoom')->where('status', '!=', 'cancelled')->whereNull('attendance_synced_at')->where('starts_at', '<', now()->subHour())->where('starts_at', '>', now()->subDays(3))
+        ->each(fn ($s) => \App\Jobs\SyncZoomAttendance::dispatch($s->id));      // safety net if the meeting.ended webhook never arrived
+})->name('live:sync-attendance')->hourly()->onOneServer();

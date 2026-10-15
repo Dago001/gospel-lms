@@ -13,6 +13,11 @@ class LiveSessionRecording extends Model
 
     protected $hidden = ['play_url'];
 
+    public function session(): \Illuminate\Database\Eloquent\Relations\BelongsTo
+    {
+        return $this->belongsTo(LiveSession::class, 'live_session_id');
+    }
+
     protected function casts(): array
     {
         return ['published' => 'boolean'];

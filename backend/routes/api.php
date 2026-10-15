@@ -10,6 +10,8 @@ use App\Http\Controllers\Api\V1\Learn\CompletionController;
 use App\Http\Controllers\Api\V1\Learn\LearnController;
 use App\Http\Controllers\Api\V1\Learn\PlaybackController;
 use App\Http\Controllers\Api\V1\VideoWebhookController;
+use App\Http\Controllers\Api\V1\ZoomWebhookController;
+use App\Http\Controllers\Api\V1\Learn\LiveLearnController;
 use App\Http\Controllers\Api\V1\PaymentWebhookController;
 use App\Http\Controllers\Api\V1\Manage;
 use App\Http\Controllers\Api\V1\Public\CatalogueController;
@@ -31,6 +33,7 @@ Route::prefix('v1')->group(function () {
     // Gateway webhook: authenticated by HMAC signature, not by session
     Route::post('webhooks/paystack', [PaymentWebhookController::class, 'paystack'])->middleware('throttle:300,1,r2');
 
+    Route::post('webhooks/zoom', [ZoomWebhookController::class, 'handle'])->middleware('throttle:300,1,zoomhook');
     Route::post('webhooks/video/cloudflare', [VideoWebhookController::class, 'cloudflare'])->middleware('throttle:300,1,r3');
 
     // Public catalogue (published content only)
@@ -99,6 +102,9 @@ Route::prefix('v1')->group(function () {
             Route::get('courses/{course}/completion', [CompletionController::class, 'show'])->middleware('throttle:60,1,r20');
             Route::get('certificates', [CompletionController::class, 'certificates']);
             Route::get('certificates/{certificate}/pdf', [CompletionController::class, 'pdf'])->middleware('throttle:30,1,r21');
+            Route::get('courses/{course}/live-sessions', [LiveLearnController::class, 'index']);
+            Route::get('live-sessions/{session}/join', [LiveLearnController::class, 'join'])->middleware('throttle:30,1,livejoin');
+            Route::get('live-sessions/{session}/recordings', [LiveLearnController::class, 'recordings']);
             Route::get('resources/{resource}/download', [LearnController::class, 'downloadResource'])->middleware('throttle:60,1,r22');
         });
 
@@ -160,6 +166,15 @@ Route::prefix('v1')->group(function () {
             Route::get('courses/{course}/completion-report', [Manage\CompletionController::class, 'report']);
             Route::get('courses/{course}/students/{user}/completion', [Manage\CompletionController::class, 'student']);
             Route::post('courses/{course}/students/{user}/approve-completion', [Manage\CompletionController::class, 'approve']);
+            Route::get('courses/{course}/live-sessions', [Manage\LiveSessionController::class, 'index']);
+            Route::post('courses/{course}/live-sessions', [Manage\LiveSessionController::class, 'store'])->middleware('throttle:20,1,livecreate');
+            Route::put('live-sessions/{session}', [Manage\LiveSessionController::class, 'update']);
+            Route::delete('live-sessions/{session}', [Manage\LiveSessionController::class, 'destroy']);
+            Route::get('live-sessions/{session}/attendance', [Manage\LiveSessionController::class, 'attendance']);
+            Route::put('live-sessions/{session}/attendance/{user}', [Manage\LiveSessionController::class, 'setAttendance']);
+            Route::post('live-sessions/{session}/sync-attendance', [Manage\LiveSessionController::class, 'syncNow'])->middleware('throttle:10,1,livesync');
+            Route::get('live-sessions/{session}/recordings', [Manage\LiveSessionController::class, 'recordings']);
+            Route::put('recordings/{recording}', [Manage\LiveSessionController::class, 'publishRecording']);
             Route::post('lessons/{lesson}/video/upload', [Manage\VideoController::class, 'authoriseUpload'])->middleware('throttle:20,1,r26');
             Route::get('video-assets/{asset}', [Manage\VideoController::class, 'status']);
             Route::post('lessons/{lesson}/resources', [Manage\CurriculumController::class, 'uploadResource'])->middleware('throttle:30,1,r27');

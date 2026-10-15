@@ -53,6 +53,16 @@ return [
         'base_url' => env('CLOUDFLARE_API_BASE', 'https://api.cloudflare.com/client/v4'),
     ],
 
+    'zoom' => [
+        'account_id' => env('ZOOM_ACCOUNT_ID'),
+        'client_id' => env('ZOOM_CLIENT_ID'),
+        'client_secret' => env('ZOOM_CLIENT_SECRET'),
+        'webhook_secret_token' => env('ZOOM_WEBHOOK_SECRET_TOKEN'),
+        'host_user' => env('ZOOM_HOST_USER', 'me'),
+        'base_url' => env('ZOOM_API_BASE', 'https://api.zoom.us/v2'),
+        'oauth_url' => env('ZOOM_OAUTH_URL', 'https://zoom.us/oauth/token'),
+    ],
+
     'clamav' => [
         'enabled' => env('CLAMAV_ENABLED', false),
         'socket' => env('CLAMAV_SOCKET', 'unix:///var/run/clamav/clamd.ctl'),
