@@ -126,7 +126,7 @@ function Exam({ attempt, onFinished }) {
           <span className="small muted" aria-live="polite">{save[q.question_id] === 'saving' ? 'Saving…' : save[q.question_id] === 'error' ? 'Not saved, retrying…' : save[q.question_id] === 'saved' ? 'Saved' : ''}</span>
         </div>
       </div>
-      <div className="grid-2" style={{ gridTemplateColumns: 'minmax(0,1fr) 220px', alignItems: 'start' }}>
+      <div className="cols cols-220" style={{ alignItems: 'start' }}>
         <div className="panel panel-pad">
           <RichText html={q.prompt} />
           <p className="small muted">{q.points} mark{q.points === 1 ? '' : 's'}{q.type === 'multi' ? ' · Select all that apply' : ''}</p>

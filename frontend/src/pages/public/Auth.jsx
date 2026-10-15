@@ -6,8 +6,34 @@ import { Alert, CheckField, TextField } from '../../components/ui/Fields.jsx';
 import { useForm } from '../../lib/useForm.js';
 import { useDocumentTitle } from '../../lib/useDocumentTitle.js';
 
-function AuthPanel({ title, children, foot }) {
-  return <div className="auth-wrap"><div className="panel"><h1 style={{ fontSize: 'var(--fs-section)' }}>{title}</h1>{children}</div>{foot && <p className="small" style={{ textAlign: 'center', marginTop: 16 }}>{foot}</p>}</div>;
+const SCENES = {
+  nave: { img: 'nave', verse: 'Thy word is a lamp unto my feet, and a light unto my path.', ref: 'Psalm 119:105' },
+  class: { img: 'class', verse: 'Study to shew thyself approved unto God, a workman that needeth not to be ashamed.', ref: '2 Timothy 2:15' },
+  library: { img: 'library', verse: 'Get wisdom, get understanding.', ref: 'Proverbs 4:5' },
+  bible: { img: 'bible', verse: 'The entrance of thy words giveth light.', ref: 'Psalm 119:130' },
+};
+
+function AuthPanel({ title, children, foot, scene = 'nave' }) {
+  const s = SCENES[scene];
+  return (
+    <div className="container auth-split">
+      <div className="auth-card">
+        <aside className="auth-art">
+          <img className="auth-photo" src={`/img/${s.img}-sm.jpg`} srcSet={`/img/${s.img}-sm.jpg 900w, /img/${s.img}-lg.jpg 1920w`} sizes="(max-width: 800px) 100vw, 50vw" alt="" decoding="async" />
+          <div className="auth-shade" />
+          <div className="auth-art-copy">
+            <img className="auth-logo" src="/logo-white.png" alt="GOSPEL LMS" width="554" height="446" />
+            <blockquote><p>{s.verse}</p><footer>{s.ref}</footer></blockquote>
+          </div>
+        </aside>
+        <div className="auth-form">
+          <h1>{title}</h1>
+          {children}
+          {foot && <p className="small auth-foot">{foot}</p>}
+        </div>
+      </div>
+    </div>
+  );
 }
 
 export function Login() {
@@ -49,7 +75,7 @@ export function Register() {
   const f = useForm({ name: '', email: '', password: '', password_confirmation: '', accept_terms: false });
   const submit = f.handle(async (v) => { await register(v); });   // <GuestOnly> then redirects to ?next or the dashboard
   return (
-    <AuthPanel title="Create your account" foot={<>Already registered? <Link to="/login">Sign in</Link></>}>
+    <AuthPanel scene="class" title="Create your account" foot={<>Already registered? <Link to="/login">Sign in</Link></>}>
       <form onSubmit={submit} noValidate>
         {f.formError && <Alert type="error">{f.formError}</Alert>}
         <TextField label="Full name" autoComplete="name" required {...f.bind('name')} help="As you want it to appear on your certificate." />
@@ -69,7 +95,7 @@ export function Forgot() {
   const f = useForm({ email: '' });
   const submit = f.handle(async (v) => { await post('/auth/forgot-password', v); setSent(true); });
   return (
-    <AuthPanel title="Reset your password" foot={<Link to="/login">Back to sign in</Link>}>
+    <AuthPanel scene="library" title="Reset your password" foot={<Link to="/login">Back to sign in</Link>}>
       {sent ? <Alert type="success" title="Check your email">If an account exists for that address, we have sent a link to reset the password. It expires soon.</Alert> : (
         <form onSubmit={submit} noValidate>
           {f.formError && <Alert type="error">{f.formError}</Alert>}
@@ -88,7 +114,7 @@ export function ResetPassword() {
   const f = useForm({ token: sp.get('token') || '', email: sp.get('email') || '', password: '', password_confirmation: '' });
   const submit = f.handle(async (v) => { await post('/auth/reset-password', v); nav('/login?reset=1', { replace: true }); });
   return (
-    <AuthPanel title="Choose a new password">
+    <AuthPanel scene="library" title="Choose a new password">
       <form onSubmit={submit} noValidate>
         {f.formError && <Alert type="error">{f.formError}</Alert>}
         <TextField label="Email" type="email" required {...f.bind('email')} />
@@ -107,7 +133,7 @@ export function VerifyEmailResult() {
   const ok = sp.get('status') === 'success';
   useEffect(() => { if (ok) refresh(); }, [ok, refresh]);
   return (
-    <AuthPanel title={ok ? 'Email verified' : 'Link not valid'}>
+    <AuthPanel scene="bible" title={ok ? 'Email verified' : 'Link not valid'}>
       {ok ? <Alert type="success">Your email address is verified. You can now enrol in courses.</Alert> : <Alert type="error">This verification link is invalid or has expired. Sign in and request a new one.</Alert>}
       <Link className="btn btn-primary btn-block" to={ok ? '/student' : '/login'}>{ok ? 'Go to my dashboard' : 'Sign in'}</Link>
     </AuthPanel>

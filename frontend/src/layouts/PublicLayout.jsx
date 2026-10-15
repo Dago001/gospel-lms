@@ -5,11 +5,12 @@ import { Icon } from '../components/ui/Icon.jsx';
 import { useQuery } from '@tanstack/react-query';
 import { get } from '../api/client.js';
 
+/** The academy logo (dove and script wordmark). `light` uses the white version for dark backgrounds. */
 export function Wordmark({ to = '/', light }) {
   return (
-    <Link to={to} className="wordmark" aria-label="GOSPEL LMS home">
-      <svg width="28" height="28" viewBox="0 0 32 32" aria-hidden="true"><rect width="32" height="32" rx="4" fill={light ? '#fff' : '#164b1c'} /><path d="M16 6v20M9 12h14" stroke={light ? '#164b1c' : '#fff'} strokeWidth="3" strokeLinecap="square" /><path d="M6 27h20" stroke="#b8954b" strokeWidth="2" /></svg>
-      <span>GOSPEL LMS</span>
+    <Link to={to} className={`wordmark ${light ? 'wordmark-light' : ''}`} aria-label="GOSPEL LMS home">
+      <img src={light ? '/logo-white.png' : '/logo.png'} alt="" width="554" height="446" decoding="async" />
+      <span className="sr-only">GOSPEL LMS</span>
     </Link>
   );
 }

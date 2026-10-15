@@ -2,7 +2,9 @@
 .site-header { background: var(--white); border-top: 4px solid var(--green); border-bottom: var(--border-w) solid var(--border); position: sticky; top: 0; z-index: 30; }
 .site-header-inner { max-width: var(--content-max); margin: 0 auto; padding: 0 var(--s-4); min-height: 64px; display: flex; align-items: center; gap: var(--s-5); }
 .wordmark { display: inline-flex; align-items: center; gap: var(--s-2); text-decoration: none; color: var(--green-dark); font-weight: 700; font-size: 1.125rem; letter-spacing: 0.02em; }
-.wordmark svg { flex: none; }
+.wordmark img { display: block; height: 52px; width: auto; flex: none; }
+.sidebar .wordmark img { height: 40px; }
+.site-footer .wordmark img { height: 64px; }
 .site-nav { display: flex; gap: var(--s-1); margin-left: var(--s-4); }
 .site-nav a { padding: var(--s-2) var(--s-3); text-decoration: none; color: var(--text); font-size: var(--fs-small); font-weight: 600; border-radius: var(--radius); }
 .site-nav a:hover { background: var(--green-surface); }
@@ -63,7 +65,7 @@
 .menu { position: absolute; right: 0; top: calc(100% + 4px); background: var(--white); border: 1px solid var(--border); border-radius: var(--radius); box-shadow: var(--shadow-overlay); min-width: 220px; z-index: 40; padding: var(--s-1) 0; }
 .menu a, .menu button { display: block; width: 100%; text-align: left; padding: var(--s-2) var(--s-4); background: none; border: 0; font: inherit; font-size: var(--fs-small); color: var(--text); text-decoration: none; cursor: pointer; }
 .menu a:hover, .menu button:hover { background: var(--green-surface); }
-.lesson-layout { display: grid; grid-template-columns: 1fr 340px; gap: var(--s-5); align-items: start; }
+.lesson-layout { display: grid; grid-template-columns: minmax(0, 1fr) 340px; gap: var(--s-5); align-items: start; }
 
 @media (max-width: 960px) {
   .hero-grid, .catalogue, .lesson-layout, .footer-grid { grid-template-columns: 1fr; }

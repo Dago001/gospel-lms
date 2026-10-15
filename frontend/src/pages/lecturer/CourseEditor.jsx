@@ -91,7 +91,7 @@ function Details({ course: c }) {
   const inv = useAction(() => Promise.resolve(), { invalidate: [['manage', 'course']] });
   const editable = ['draft', 'approved', 'published'].includes(c.status);
   return (
-    <div className="grid-2" style={{ gridTemplateColumns: 'minmax(0,1fr) 320px' }}>
+    <div className="cols cols-320">
       <form onSubmit={async (e) => { await save(e); inv.mutate(); }} noValidate>
         {ok && <Alert type="success">Saved. A new version was recorded.</Alert>}{f.formError && <Alert type="error">{f.formError}</Alert>}
         {!editable && <Alert type="info">Editing is locked in this state.</Alert>}

@@ -45,7 +45,7 @@ export function CourseHome() {
 function Overview({ course, courseId }) {
   const p = course.progress;
   return (
-    <div className="grid-2" style={{ gridTemplateColumns: 'minmax(0,1fr) 340px' }}>
+    <div className="cols cols-340">
       <div>
         {p?.percent != null && <div className="panel panel-pad" style={{ marginBottom: 24 }}>
           <div className="split"><h2 style={{ margin: 0, fontSize: 'var(--fs-sub)' }}>Your progress</h2><strong>{Math.round(p.percent)}%</strong></div>

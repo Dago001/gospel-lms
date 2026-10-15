@@ -61,7 +61,7 @@ function AssignmentModal({ course, rubrics, onClose }) {
         {rubrics.length > 0 && !rows.length && <SelectField label="Use an existing rubric" {...f.bind('rubric_id')} placeholder="No rubric" options={rubrics.map((r) => ({ value: r.id, label: `${r.title} (${r.total_points} marks)` }))} />}
         {!f.values.rubric_id && (
           <>
-            {rows.map((r, i) => <div key={i} className="form-grid" style={{ gridTemplateColumns: '1fr 120px auto', alignItems: 'end' }}><TextField label={`Criterion ${i + 1}`} value={r.title} onChange={(e) => setRows(rows.map((x, j) => (j === i ? { ...x, title: e.target.value } : x)))} /><TextField label="Marks" type="number" min="1" value={r.points} onChange={(e) => setRows(rows.map((x, j) => (j === i ? { ...x, points: e.target.value } : x)))} /><button type="button" className="btn btn-quiet" style={{ marginBottom: 16 }} onClick={() => setRows(rows.filter((_, j) => j !== i))}>Remove</button></div>)}
+            {rows.map((r, i) => <div key={i} className="form-grid row-3" style={{ alignItems: 'end' }}><TextField label={`Criterion ${i + 1}`} value={r.title} onChange={(e) => setRows(rows.map((x, j) => (j === i ? { ...x, title: e.target.value } : x)))} /><TextField label="Marks" type="number" min="1" value={r.points} onChange={(e) => setRows(rows.map((x, j) => (j === i ? { ...x, points: e.target.value } : x)))} /><button type="button" className="btn btn-quiet" style={{ marginBottom: 16 }} onClick={() => setRows(rows.filter((_, j) => j !== i))}>Remove</button></div>)}
             <button type="button" className="btn btn-secondary btn-sm" onClick={() => setRows([...rows, { title: '', points: 10 }])}>Add criterion</button>
             {rows.length > 0 && <p className="small muted">Total marks will be {rows.reduce((n, r) => n + Number(r.points || 0), 0)} (overrides “Maximum marks”).</p>}
           </>
@@ -78,7 +78,7 @@ export function BanksTab({ course }) {
   const [title, setTitle] = useState('');
   const create = useAction(() => post(`/manage/courses/${course.id}/question-banks`, { title }), { invalidate: [['manage', 'banks']], success: 'Bank created.', onSuccess: (r) => { setTitle(''); setBank(r.data.id); } });
   return (
-    <div className="grid-2" style={{ gridTemplateColumns: '260px minmax(0,1fr)', alignItems: 'start' }}>
+    <div className="cols cols-rev-260" style={{ alignItems: 'start' }}>
       <div className="panel"><div className="panel-head"><h2>Banks</h2></div>
         <ul className="list-plain">{(banks.data?.data || []).map((b) => <li key={b.id}><button className="btn btn-quiet btn-block" style={{ justifyContent: 'space-between', borderRadius: 0 }} aria-current={bank === b.id} onClick={() => setBank(b.id)}><span>{b.title}</span><span className="muted">{b.question_count}</span></button></li>)}</ul>
         <form className="panel-body" onSubmit={(e) => { e.preventDefault(); create.mutate(); }}><TextField label="New bank" value={title} onChange={(e) => setTitle(e.target.value)} /><button className="btn btn-secondary btn-sm" disabled={!title.trim()}>Create</button></form></div>

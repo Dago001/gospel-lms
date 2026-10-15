@@ -24,4 +24,4 @@ cd frontend && npx playwright test     # e2e + axe (needs Chromium; set E2E_CHRO
 ```
 
 ## Documentation
-`docs/FINAL_REPORT.md` · `PROGRESS.md` · `API.md` · `DEPLOYMENT.md` · `OPERATIONS.md` · `SECURITY.md` · `ACCESSIBILITY.md` · `VIDEO.md` · `KNOWN_LIMITATIONS.md` · `PRODUCTION_CHECKLIST.md`
+`docs/FINAL_REPORT.md` · `CREDITS.md` · `PROGRESS.md` · `API.md` · `DEPLOYMENT.md` · `OPERATIONS.md` · `SECURITY.md` · `ACCESSIBILITY.md` · `VIDEO.md` · `KNOWN_LIMITATIONS.md` · `PRODUCTION_CHECKLIST.md`

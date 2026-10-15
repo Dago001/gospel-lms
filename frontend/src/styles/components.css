@@ -44,14 +44,23 @@
 /* ---------- Surfaces ---------- */
 .panel { background: var(--white); border: var(--border-w) solid var(--border); border-radius: var(--radius); }
 .panel-pad { padding: var(--s-5); }
-.panel-head { display: flex; justify-content: space-between; align-items: center; gap: var(--s-3); padding: var(--s-3) var(--s-5); border-bottom: var(--border-w) solid var(--border); }
+.panel-head { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: var(--s-3); padding: var(--s-3) var(--s-5); border-bottom: var(--border-w) solid var(--border); }
 .panel-head h2, .panel-head h3 { margin: 0; font-size: var(--fs-sub); }
 .panel-body { padding: var(--s-5); }
 .stack > * + * { margin-top: var(--s-5); }
 .stack-sm > * + * { margin-top: var(--s-3); }
 .cluster { display: flex; flex-wrap: wrap; gap: var(--s-3); align-items: center; }
 .split { display: flex; justify-content: space-between; align-items: center; gap: var(--s-4); flex-wrap: wrap; }
-.grid-2 { display: grid; gap: var(--s-5); grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); }
+.grid-2 { display: grid; gap: var(--s-5); grid-template-columns: repeat(auto-fit, minmax(min(300px, 100%), 1fr)); }
+.grid-2 > *, .cols > * { min-width: 0; }
+.cols { display: grid; gap: var(--s-5); }
+.cols-340 { grid-template-columns: minmax(0, 1fr) 340px; }
+.cols-320 { grid-template-columns: minmax(0, 1fr) 320px; }
+.cols-220 { grid-template-columns: minmax(0, 1fr) 220px; }
+.cols-rev-260 { grid-template-columns: 260px minmax(0, 1fr); }
+.row-3 { grid-template-columns: minmax(0, 1fr) 120px auto; }
+@media (max-width: 960px) { .cols-340, .cols-320, .cols-220, .cols-rev-260 { grid-template-columns: minmax(0, 1fr); } }
+@media (max-width: 560px) { .row-3 { grid-template-columns: minmax(0, 1fr) 90px; } .row-3 > :last-child { grid-column: 1 / -1; } }
 .grid-3 { display: grid; gap: var(--s-5); grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); }
 .page-head { margin-bottom: var(--s-5); }
 .page-head h1 { margin-bottom: var(--s-1); }

@@ -15,6 +15,7 @@
  .sig{border-top:1px solid #202820;padding-top:4px;width:200px;color:#202820}
 </style></head><body>
 <div class="frame"><div class="inner">
+ <img src="{{ 'data:image/png;base64,'.base64_encode(file_get_contents(resource_path('branding/logo.png'))) }}" alt="{{ $academy['name'] }}" style="height:70px">
  <div class="academy">{{ $academy['name'] }}</div>
  <h1>Certificate of Completion</h1>
  <div class="small">This is to certify that</div>

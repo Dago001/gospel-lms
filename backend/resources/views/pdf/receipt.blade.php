@@ -8,7 +8,8 @@
  td{padding:7px 4px;border-bottom:1px solid #EEF1EC} .r{text-align:right} .tot td{font-weight:bold;border-bottom:0}
 </style></head><body>
 <div class="bar">
- <h1>{{ $academy['name'] }}</h1>
+ <img src="{{ 'data:image/png;base64,'.base64_encode(file_get_contents(resource_path('branding/logo.png'))) }}" alt="" style="height:56px">
+<h1>{{ $academy['name'] }}</h1>
  <div class="muted">{{ $academy['legal_name'] }} @if($academy['address'])· {{ $academy['address'] }}@endif @if($academy['support_email'])· {{ $academy['support_email'] }}@endif</div>
 </div>
 <h1>Payment receipt</h1>

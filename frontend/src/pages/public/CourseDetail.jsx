@@ -24,7 +24,7 @@ export default function CourseDetail() {
   return (
     <div className="container band">
       <Breadcrumbs items={[{ label: 'Courses', to: '/courses' }, { label: c.title }]} />
-      <div className="lesson-layout" style={{ gridTemplateColumns: 'minmax(0,1fr) 340px' }}>
+      <div className="lesson-layout cols cols-340">
         <div>
           <p className="section-label">{c.category?.name || 'Course'}</p>
           <h1 className="serif">{c.title}</h1>
