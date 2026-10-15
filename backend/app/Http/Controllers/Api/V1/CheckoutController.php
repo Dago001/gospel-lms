@@ -67,9 +67,9 @@ class CheckoutController extends Controller
 
     public function orders(Request $request): JsonResponse
     {
-        $orders = Order::where('user_id', $request->user()->id)->with('items')->latest()->paginate(20);
+        $orders = Order::where('user_id', $request->user()->id)->with(['items', 'payments' => fn ($q) => $q->latest()])->latest()->paginate(20);
 
-        return response()->json(['data' => $orders->getCollection()->map(fn ($o) => $this->orderData($o))->values(), 'meta' => ['current_page' => $orders->currentPage(), 'last_page' => $orders->lastPage(), 'total' => $orders->total()]]);
+        return response()->json(['data' => $orders->getCollection()->map(fn ($o) => $this->orderData($o) + ['payments' => $o->payments->map(fn ($p) => ['reference' => $p->reference, 'status' => $p->status, 'receipt_id' => $p->receipt?->id])->values()])->values(), 'meta' => ['current_page' => $orders->currentPage(), 'last_page' => $orders->lastPage(), 'total' => $orders->total()]]);
     }
 
     public function receipts(Request $request): JsonResponse

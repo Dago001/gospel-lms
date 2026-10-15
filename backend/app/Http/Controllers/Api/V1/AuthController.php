@@ -120,6 +120,17 @@ class AuthController extends Controller
         return new AuthUserResource($request->user()->load('profile'));
     }
 
+    /** Like me(), but answers 200 with null for guests so the SPA's start-up probe is not an error. */
+    public function session(Request $request): JsonResponse
+    {
+        $user = Auth::guard('web')->user();
+        if (! $user || $user->isSuspended()) {
+            return response()->json(['data' => null]);
+        }
+
+        return (new AuthUserResource($user->load('profile')))->response();
+    }
+
     public function forgotPassword(Request $request): JsonResponse
     {
         $request->validate(['email' => ['required', 'email']]);

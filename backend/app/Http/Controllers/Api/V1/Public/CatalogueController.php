@@ -13,11 +13,20 @@ use Illuminate\Validation\Rule;
 
 class CatalogueController extends Controller
 {
+    /** Non-secret site information for the public shell. */
+    public function site(): JsonResponse
+    {
+        $a = \App\Services\Settings::academy();
+
+        return response()->json(['data' => ['name' => $a['name'], 'support_email' => $a['support_email'], 'maintenance_message' => \App\Services\Settings::get('site.maintenance_message'),
+            'refund_window_days' => \App\Services\Settings::get('policy.refund_window_days')]]);
+    }
+
     public function categories(): JsonResponse
     {
         $cats = Category::query()->withCount(['courses' => fn ($q) => $q->where('status', 'published')])->orderBy('sort_order')->orderBy('name')->get();
 
-        return response()->json(['data' => $cats->map(fn ($c) => ['slug' => $c->slug, 'name' => $c->name, 'description' => $c->description, 'course_count' => $c->courses_count])]);
+        return response()->json(['data' => $cats->map(fn ($c) => ['id' => $c->id, 'slug' => $c->slug, 'name' => $c->name, 'description' => $c->description, 'course_count' => $c->courses_count])]);
     }
 
     public function courses(Request $request): JsonResponse

@@ -1,0 +1,40 @@
+*, *::before, *::after { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+body {
+  margin: 0; background: var(--page); color: var(--text);
+  font: var(--fs-body)/var(--lh-body) var(--font-ui);
+  -webkit-font-smoothing: antialiased;
+}
+h1, h2, h3, h4 { line-height: var(--lh-tight); margin: 0 0 var(--s-3); font-weight: 700; color: var(--text); }
+h1 { font-size: var(--fs-title); }
+h2 { font-size: var(--fs-section); }
+h3 { font-size: var(--fs-sub); }
+h4 { font-size: var(--fs-body); }
+p { margin: 0 0 var(--s-4); max-width: 68ch; }
+a { color: var(--green); text-underline-offset: 2px; }
+a:hover { color: var(--green-dark); }
+img, svg, video { max-width: 100%; }
+ul, ol { margin: 0 0 var(--s-4); padding-left: 1.25rem; }
+hr { border: 0; border-top: var(--border-w) solid var(--border); margin: var(--s-5) 0; }
+small, .small { font-size: var(--fs-small); }
+.micro { font-size: var(--fs-micro); }
+.muted { color: var(--text-secondary); }
+.serif { font-family: var(--font-serif); }
+.nowrap { white-space: nowrap; }
+.right { text-align: right; }
+.sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; border: 0; }
+
+:focus-visible { outline: none; box-shadow: var(--focus); border-radius: var(--radius-sm); }
+.on-dark :focus-visible { box-shadow: 0 0 0 2px var(--green-dark), 0 0 0 4px var(--white); }
+
+.skip-link { position: absolute; left: var(--s-3); top: -48px; background: var(--green-dark); color: var(--white); padding: var(--s-2) var(--s-4); z-index: 100; border-radius: var(--radius); }
+.skip-link:focus { top: var(--s-3); }
+
+code, kbd { font-family: ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace; font-size: 0.9em; background: var(--green-surface); padding: 1px 5px; border-radius: var(--radius-sm); }
+.prose { max-width: 70ch; }
+.prose h2 { margin-top: var(--s-6); }
+.prose h3 { margin-top: var(--s-5); }
+.prose li { margin-bottom: var(--s-2); }
+.rich :where(p, ul, ol, blockquote, table) { max-width: 70ch; }
+.rich blockquote { margin: 0 0 var(--s-4); padding-left: var(--s-4); border-left: 3px solid var(--gold); color: var(--text-secondary); font-family: var(--font-serif); }
+.rich table { border-collapse: collapse; } .rich td, .rich th { border: 1px solid var(--border); padding: var(--s-2) var(--s-3); }

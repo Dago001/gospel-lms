@@ -118,3 +118,10 @@ it('lists own sessions and cannot revoke another user\'s session', function () {
     $this->deleteJson('/api/v1/account/sessions/'.$bSession->id)->assertNotFound();
     expect($bSession->fresh()->revoked_at)->toBeNull();
 });
+
+it('answers the SPA session probe with null for guests and the user once signed in', function () {
+    $this->getJson('/api/v1/auth/session')->assertOk()->assertJsonPath('data', null);
+    $u = $this->makeUser();
+    $this->postJson('/api/v1/auth/login', ['email' => $u->email, 'password' => 'Password-12345'])->assertOk();
+    $this->getJson('/api/v1/auth/session')->assertOk()->assertJsonPath('data.email', $u->email);
+});

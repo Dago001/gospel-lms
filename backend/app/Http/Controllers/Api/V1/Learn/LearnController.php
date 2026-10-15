@@ -65,7 +65,7 @@ class LearnController extends Controller
         return response()->json(['data' => CourseSerializer::lessonOutline($lesson) + [
             'content' => $lesson->content, 'video_source' => $lesson->video_source, 'youtube_id' => $lesson->youtube_id,
             'required_completion_percent' => $lesson->requiredCompletionPercent(),
-            'resources' => $lesson->resources->map(fn ($r) => ['id' => $r->id, 'title' => $r->title, 'name' => $r->original_name, 'size_bytes' => $r->size_bytes, 'mime' => $r->mime])->values(),
+            'resources' => $lesson->resources->map(fn ($r) => ['id' => $r->id, 'title' => $r->title, 'name' => $r->original_name, 'size_bytes' => $r->size_bytes, 'mime' => $r->mime, 'requires_acknowledgement' => $r->requires_acknowledgement])->values(),
         ]]);
     }
 

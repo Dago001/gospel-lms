@@ -25,6 +25,7 @@ use Illuminate\Support\Facades\Route;
 Route::prefix('v1')->group(function () {
     // Public authentication endpoints (rate limited by named limiters in AppServiceProvider)
     Route::prefix('auth')->group(function () {
+        Route::get('session', [AuthController::class, 'session']);
         Route::post('register', [AuthController::class, 'register'])->middleware('throttle:register');
         Route::post('login', [AuthController::class, 'login'])->middleware('throttle:login');
         Route::post('two-factor/challenge', [AuthController::class, 'twoFactorChallenge'])->middleware('throttle:mfa');
@@ -41,6 +42,7 @@ Route::prefix('v1')->group(function () {
 
     // Public catalogue (published content only)
     Route::prefix('public')->middleware('throttle:120,1,r4')->group(function () {
+        Route::get('site', [CatalogueController::class, 'site']);
         Route::get('categories', [CatalogueController::class, 'categories']);
         Route::get('courses', [CatalogueController::class, 'courses']);
         Route::get('courses/{slug}', [CatalogueController::class, 'course']);
@@ -93,6 +95,7 @@ Route::prefix('v1')->group(function () {
 
         Route::middleware('mfa')->group(function () {
             Route::get('student/dashboard', [Report\DashboardController::class, 'student']);
+            Route::get('student/results', [Report\DashboardController::class, 'results']);
             Route::get('manage/dashboard', [Report\DashboardController::class, 'lecturer'])->middleware('permission:courses.manage-own,courses.manage-all');
         });
 

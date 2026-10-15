@@ -46,6 +46,24 @@ class DashboardController extends Controller
         ]]);
     }
 
+    /** Everything the student has been graded on, released results only. */
+    public function results(Request $request): JsonResponse
+    {
+        $uid = $request->user()->id;
+        $assignments = DB::table('submission_grades as g')->join('assignment_submissions as s', 's.id', '=', 'g.submission_id')->join('assignments as a', 'a.id', '=', 's.assignment_id')->join('courses as c', 'c.id', '=', 'a.course_id')
+            ->where('s.user_id', $uid)->where('g.status', 'published')->orderByDesc('g.published_at')
+            ->get(['c.id as course_id', 'c.title as course', 'a.title', 'a.max_score', 'a.pass_mark', 'g.final_score', 'g.penalty_percent', 'g.feedback', 'g.published_at', 's.attempt'])
+            ->map(fn ($r) => ['kind' => 'assignment', 'course_id' => $r->course_id, 'course' => $r->course, 'title' => $r->title, 'score' => (float) $r->final_score, 'max' => (float) $r->max_score,
+                'percent' => round($r->final_score / $r->max_score * 100, 1), 'passed' => $r->pass_mark === null ? null : $r->final_score >= $r->pass_mark, 'feedback' => $r->feedback, 'at' => $r->published_at, 'attempt' => $r->attempt, 'penalty_percent' => (float) $r->penalty_percent]);
+        $assessments = DB::table('assessment_attempts as t')->join('assessments as a', 'a.id', '=', 't.assessment_id')->join('courses as c', 'c.id', '=', 'a.course_id')
+            ->where('t.user_id', $uid)->whereNotNull('t.results_published_at')->orderByDesc('t.results_published_at')
+            ->get(['c.id as course_id', 'c.title as course', 'a.title', 'a.kind', 't.id as attempt_id', 't.attempt_no', 't.total_score', 't.max_score', 't.percent', 't.passed', 't.results_published_at'])
+            ->map(fn ($r) => ['kind' => 'assessment', 'course_id' => $r->course_id, 'course' => $r->course, 'title' => $r->title, 'assessment_kind' => $r->kind, 'attempt_id' => $r->attempt_id, 'attempt' => $r->attempt_no,
+                'score' => (float) $r->total_score, 'max' => (float) $r->max_score, 'percent' => (float) $r->percent, 'passed' => (bool) $r->passed, 'at' => $r->results_published_at]);
+
+        return response()->json(['data' => $assignments->concat($assessments)->sortByDesc('at')->values()]);
+    }
+
     public function lecturer(Request $request): JsonResponse
     {
         $u = $request->user();
