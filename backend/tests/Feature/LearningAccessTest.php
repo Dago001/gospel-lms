@@ -41,7 +41,7 @@ it('requires a verified email, a published course and met prerequisites', functi
 
 it('gates lesson content by enrolment, preview flag, and staff status', function () {
     $lect = $this->makeUser('lecturer');
-    $c = Course::factory()->published()->withCurriculum(2, $lect)->create();
+    $c = Course::factory()->published()->withCurriculum(2, $lect)->create(['sequential_progression' => false]);   // ordering is tested in VideoProgressTest
     [$l1, $l2] = $c->lessons()->orderBy('position')->get()->all();
     $l1->forceFill(['is_preview' => true])->save();
     $enrolled = $this->makeUser('student');

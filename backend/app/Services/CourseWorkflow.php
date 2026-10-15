@@ -102,6 +102,8 @@ class CourseWorkflow
         if (! $course->lessons()->exists()) $p[] = 'Add at least one lesson.';
         if ($course->lessons()->where('type', 'video')->whereNull('video_source')->exists()) $p[] = 'Every video lesson needs a video source.';
 
+        if ($course->lessons()->where('type', 'video')->whereNull('duration_seconds')->exists()) $p[] = 'Every video lesson needs a duration (hosted videos get it automatically once processed).';
+
         return $p;
     }
 

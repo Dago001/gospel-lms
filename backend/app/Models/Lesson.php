@@ -28,6 +28,11 @@ class Lesson extends Model
         return $this->belongsTo(CourseModule::class, 'module_id');
     }
 
+    public function videoAsset(): BelongsTo
+    {
+        return $this->belongsTo(VideoAsset::class, 'video_asset_id');
+    }
+
     public function resources(): HasMany
     {
         return $this->hasMany(LessonResource::class);

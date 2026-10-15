@@ -27,6 +27,7 @@ class CourseRequest extends FormRequest
             'requirements.*' => ['string', 'max:300'],
             'level' => ['sometimes', Rule::in(['beginner', 'intermediate', 'advanced'])],
             'duration_minutes_override' => ['nullable', 'integer', 'min:1', 'max:100000'],
+            'sequential_progression' => ['sometimes', 'boolean'],
             'video_completion_percent' => ['sometimes', 'integer', 'between:1,100'],
             'instructor_ids' => ['sometimes', 'array', 'min:1'],
             'instructor_ids.*' => ['uuid', 'distinct', 'exists:users,id'],

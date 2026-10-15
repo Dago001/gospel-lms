@@ -5,6 +5,8 @@ use App\Http\Controllers\Api\V1\Admin;
 use App\Http\Controllers\Api\V1\AuthController;
 use App\Http\Controllers\Api\V1\CheckoutController;
 use App\Http\Controllers\Api\V1\Learn\LearnController;
+use App\Http\Controllers\Api\V1\Learn\PlaybackController;
+use App\Http\Controllers\Api\V1\VideoWebhookController;
 use App\Http\Controllers\Api\V1\PaymentWebhookController;
 use App\Http\Controllers\Api\V1\Manage;
 use App\Http\Controllers\Api\V1\Public\CatalogueController;
@@ -24,6 +26,8 @@ Route::prefix('v1')->group(function () {
 
     // Gateway webhook: authenticated by HMAC signature, not by session
     Route::post('webhooks/paystack', [PaymentWebhookController::class, 'paystack'])->middleware('throttle:300,1');
+
+    Route::post('webhooks/video/cloudflare', [VideoWebhookController::class, 'cloudflare'])->middleware('throttle:300,1');
 
     // Public catalogue (published content only)
     Route::prefix('public')->middleware('throttle:120,1')->group(function () {
@@ -71,6 +75,12 @@ Route::prefix('v1')->group(function () {
             Route::post('courses/{course}/enrol', [LearnController::class, 'enrolFree'])->middleware('throttle:10,1');
             Route::get('courses/{course}', [LearnController::class, 'course']);
             Route::get('lessons/{lesson}', [LearnController::class, 'lesson']);
+            Route::post('lessons/{lesson}/playback', [PlaybackController::class, 'start'])->middleware('throttle:30,1');
+            Route::post('playback/{session}/events', [PlaybackController::class, 'events'])->middleware('throttle:120,1');
+            Route::post('playback/{session}/token', [PlaybackController::class, 'refreshToken'])->middleware('throttle:30,1');
+            Route::post('lessons/{lesson}/complete', [PlaybackController::class, 'complete'])->middleware('throttle:30,1');
+            Route::post('resources/{resource}/acknowledge', [PlaybackController::class, 'acknowledge']);
+            Route::get('courses/{course}/progress', [PlaybackController::class, 'progress']);
             Route::get('resources/{resource}/download', [LearnController::class, 'downloadResource'])->middleware('throttle:60,1');
         });
 
@@ -99,6 +109,8 @@ Route::prefix('v1')->group(function () {
             Route::put('modules/{module}/lessons/order', [Manage\CurriculumController::class, 'reorderLessons']);
             Route::put('lessons/{lesson}', [Manage\CurriculumController::class, 'updateLesson']);
             Route::delete('lessons/{lesson}', [Manage\CurriculumController::class, 'destroyLesson']);
+            Route::post('lessons/{lesson}/video/upload', [Manage\VideoController::class, 'authoriseUpload'])->middleware('throttle:20,1');
+            Route::get('video-assets/{asset}', [Manage\VideoController::class, 'status']);
             Route::post('lessons/{lesson}/resources', [Manage\CurriculumController::class, 'uploadResource'])->middleware('throttle:30,1');
             Route::delete('resources/{resource}', [Manage\CurriculumController::class, 'destroyResource']);
         });

@@ -13,7 +13,10 @@ use Illuminate\Validation\Rules\Password;
 
 class AppServiceProvider extends ServiceProvider
 {
-    public function register(): void {}
+    public function register(): void
+    {
+        $this->app->bind(\App\Services\Video\VideoProvider::class, \App\Services\Video\CloudflareStreamProvider::class);
+    }
 
     public function boot(): void
     {

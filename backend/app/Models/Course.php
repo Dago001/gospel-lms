@@ -24,7 +24,7 @@ class Course extends Model
             'objectives' => 'array', 'requirements' => 'array', 'completion_policy' => 'array',
             'approved_at' => 'datetime', 'published_at' => 'datetime', 'archived_at' => 'datetime',
             'scheduled_publish_at' => 'datetime', 'discount_starts_at' => 'datetime', 'discount_ends_at' => 'datetime',
-            'price_minor' => 'integer', 'discount_price_minor' => 'integer',
+            'sequential_progression' => 'boolean', 'price_minor' => 'integer', 'discount_price_minor' => 'integer',
         ];
     }
 

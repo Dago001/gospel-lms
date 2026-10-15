@@ -37,8 +37,8 @@ final class CourseSerializer
             'prerequisites' => $c->prerequisites->map(fn ($p) => ['slug' => $p->slug, 'title' => $p->title])->values(),
             'curriculum' => $c->modules->map(fn ($m) => [
                 'id' => $m->id, 'title' => $m->title, 'description' => $m->description,
-                'lessons' => $m->lessons->map(fn ($l) => self::lessonOutline($l))->values(),
-            ])->values(),
+                'lessons' => $m->lessons->map(fn ($l) => self::lessonOutline($l))->values()->all(),
+            ])->values()->all(),
         ];
     }
 

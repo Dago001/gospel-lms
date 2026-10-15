@@ -35,18 +35,32 @@ class LearnController extends Controller
         return response()->json(['data' => ['enrollment_id' => $e->id, 'status' => $e->status]], $e->wasRecentlyCreated ? 201 : 200);
     }
 
-    public function course(Course $course): JsonResponse
+    public function course(Request $request, Course $course): JsonResponse
     {
         Gate::authorize('learn', $course);
         $course->load(['modules.lessons', 'instructors.profile', 'category']);
+        $data = CourseSerializer::publicDetail($course);
+        if (! Gate::allows('manage', $course)) {
+            $summary = app(\App\Services\Video\ProgressionService::class)->summary($request->user(), $course);
+            foreach ($data['curriculum'] as &$m) {
+                foreach ($m['lessons'] as &$l) {
+                    $l += $summary['states'][$l['id']] ?? ['locked' => false, 'completed' => false];
+                }
+            }
+            unset($m, $l);
+            $data['progress'] = ['required_total' => $summary['required_total'], 'required_completed' => $summary['required_completed'], 'percent' => $summary['percent'], 'next_lesson_id' => $summary['next_lesson_id']];
+        }
 
-        return response()->json(['data' => CourseSerializer::publicDetail($course)]);
+        return response()->json(['data' => $data]);
     }
 
-    public function lesson(Lesson $lesson): JsonResponse
+    public function lesson(Request $request, Lesson $lesson): JsonResponse
     {
         Gate::authorize('view', $lesson);
         $lesson->load(['resources', 'course']);
+        if (! Gate::allows('manage', $lesson->course)) {
+            app(\App\Services\Video\ProgressionService::class)->assertUnlocked($request->user(), $lesson);
+        }
 
         return response()->json(['data' => CourseSerializer::lessonOutline($lesson) + [
             'content' => $lesson->content, 'video_source' => $lesson->video_source, 'youtube_id' => $lesson->youtube_id,

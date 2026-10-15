@@ -43,6 +43,16 @@ return [
         'webhook_ip_allowlist' => array_filter(explode(',', env('PAYSTACK_WEBHOOK_IPS', ''))),
     ],
 
+    'cloudflare_stream' => [
+        'account_id' => env('CLOUDFLARE_ACCOUNT_ID'),
+        'api_token' => env('CLOUDFLARE_STREAM_API_TOKEN'),
+        'customer_code' => env('CLOUDFLARE_STREAM_CUSTOMER_CODE'),   // the xxxx in customer-xxxx.cloudflarestream.com
+        'key_id' => env('CLOUDFLARE_STREAM_KEY_ID'),                 // signing key id (POST /stream/keys)
+        'key_pem_b64' => env('CLOUDFLARE_STREAM_KEY_PEM_B64'),       // base64 PEM private key returned once at creation
+        'webhook_secret' => env('CLOUDFLARE_STREAM_WEBHOOK_SECRET'),
+        'base_url' => env('CLOUDFLARE_API_BASE', 'https://api.cloudflare.com/client/v4'),
+    ],
+
     'clamav' => [
         'enabled' => env('CLAMAV_ENABLED', false),
         'socket' => env('CLAMAV_SOCKET', 'unix:///var/run/clamav/clamd.ctl'),
