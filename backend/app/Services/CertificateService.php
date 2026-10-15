@@ -43,7 +43,7 @@ class CertificateService
         try {
             $cert = DB::transaction(fn () => Certificate::create([
                 'number' => $this->uniqueNumber(), 'verification_code' => Str::lower(Str::random(32)), 'user_id' => $user->id, 'course_id' => $course->id, 'status' => 'active',
-                'holder_name' => $user->name, 'course_title' => $course->title, 'duration_minutes' => $course->durationMinutes() ?: null, 'grade_percent' => $grade,
+                'holder_name' => $user->name, 'template_path' => CertificateTemplate::current()['path'], 'layout' => CertificateTemplate::current()['path'] ? CertificateTemplate::current()['layout'] : null, 'course_title' => $course->title, 'duration_minutes' => $course->durationMinutes() ?: null, 'grade_percent' => $grade,
                 'show_grade' => (bool) $policy['show_grade_on_certificate'], 'signatory_name' => Settings::academy()['signatory_name'], 'signatory_title' => Settings::academy()['signatory_title'], 'issued_at' => now(),
             ]));
         } catch (UniqueConstraintViolationException) {
@@ -100,8 +100,41 @@ class CertificateService
 
     public function pdf(Certificate $c): string
     {
-        $qr = (new Builder(writer: new PngWriter, data: $this->verifyUrl($c), size: 220, margin: 6))->build()->getDataUri();
+        $url = $this->verifyUrl($c);
+        $qr = (new Builder(writer: new PngWriter, data: $url, size: 220, margin: 6))->build()->getDataUri();
+        $disk = \Illuminate\Support\Facades\Storage::disk('private');
+        if ($c->template_path && $disk->exists($c->template_path)) {
+            return $this->templatePdf($c->template_path, $c->layout ?? [], [
+                'holder_name' => $c->holder_name, 'course_title' => $c->course_title, 'issued_on' => 'Issued on '.$c->issued_at->timezone('Africa/Lagos')->format('j F Y'),
+                'grade' => $c->show_grade && $c->grade_percent !== null ? 'Final grade '.number_format($c->grade_percent, 1).'%' : '',
+                'duration' => $c->duration_minutes ? 'Course duration '.intdiv($c->duration_minutes, 60).'h '.($c->duration_minutes % 60).'m' : '',
+                'signatory' => trim(($c->signatory_name ?: 'Authorised signatory')."\n".($c->signatory_title ?? '')),
+                'number' => 'Certificate no. '.$c->number, 'verify_url' => 'Verify at '.$url,
+            ], $qr, $c->number);
+        }
 
-        return Pdf::loadView('pdf.certificate', ['c' => $c, 'qr' => $qr, 'url' => $this->verifyUrl($c), 'academy' => Settings::academy()])->setPaper('a4', 'landscape')->output();
+        return Pdf::loadView('pdf.certificate', ['c' => $c, 'qr' => $qr, 'url' => $url, 'academy' => Settings::academy()])->setPaper('a4', 'landscape')->output();
+    }
+
+    /** Renders certificate artwork with the given details printed on it. Used for issued certificates and for the admin preview. */
+    public function templatePdf(string $path, array $layout, array $text, string $qr, string $number): string
+    {
+        $layout = CertificateTemplate::layout($layout);
+        $mime = str_ends_with($path, '.png') ? 'image/png' : 'image/jpeg';
+        $bg = 'data:'.$mime.';base64,'.base64_encode(\Illuminate\Support\Facades\Storage::disk('private')->get($path));
+
+        return Pdf::loadView('pdf.certificate-template', ['bg' => $bg, 'w' => CertificateTemplate::PAGE_W, 'h' => CertificateTemplate::PAGE_H, 'fields' => CertificateTemplate::placed($layout, $text),
+            'qrBox' => CertificateTemplate::qrBox($layout), 'qr' => $qr, 'number' => $number])->setPaper('a4', 'landscape')->output();
+    }
+
+    /** Admin preview with obviously fictional details, using the saved layout. */
+    public function previewPdf(string $path, array $layout): string
+    {
+        $qr = (new Builder(writer: new PngWriter, data: url('/verify/sample'), size: 220, margin: 6))->build()->getDataUri();
+
+        return $this->templatePdf($path, $layout, [
+            'holder_name' => 'Sample Student Name', 'course_title' => 'Sample Course Title', 'issued_on' => 'Issued on '.now('Africa/Lagos')->format('j F Y'), 'grade' => 'Final grade 85.0%',
+            'duration' => 'Course duration 12h 30m', 'signatory' => "Authorised Signatory\nRegistrar", 'number' => 'Certificate no. GL-SAMPLE-0001', 'verify_url' => 'Verify at '.url('/verify/sample'),
+        ], $qr, 'SAMPLE');
     }
 }

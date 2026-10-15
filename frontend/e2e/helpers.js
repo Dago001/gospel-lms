@@ -1,5 +1,6 @@
 import crypto from 'node:crypto';
 import { execSync } from 'node:child_process';
+import { existsSync, readFileSync, writeFileSync } from 'node:fs';
 import { expect } from '@playwright/test';
 
 export const PASSWORD = 'Password-12345';
@@ -28,7 +29,7 @@ export async function signIn(page, email, password = PASSWORD, { mfa = false } =
   await page.getByLabel('Password').fill(password);
   await page.getByRole('button', { name: 'Sign in' }).click();
   if (mfa) {
-    await page.getByLabel('Code').fill(totp());
+    await page.getByLabel('Code').fill(await freshTotp());
     await page.getByRole('button', { name: 'Verify' }).click();
   }
   await expect(page).not.toHaveURL(/\/login/);
@@ -48,3 +49,16 @@ export async function registerStudent(page, name = 'E2E Student') {
 }
 
 export const verifyEmail = (email) => artisan(`App\\Models\\User::where("email","${email}")->first()->markEmailAsVerified(); echo "ok";`);
+
+/** The server rejects a TOTP step that was already used (replay protection) and accepts +/-1 step of drift,
+ *  so consecutive staff sign-ins must each use a later step. Tracks the last step across test files. */
+const STEP_FILE = '/tmp/gospel-e2e-last-totp-step';
+async function freshTotp() {
+  for (;;) {
+    const now = Math.floor(Date.now() / 30000);
+    const last = existsSync(STEP_FILE) ? Number(readFileSync(STEP_FILE, 'utf8')) || 0 : 0;
+    const step = Math.max(last + 1, now - 1);
+    if (step <= now + 1) { writeFileSync(STEP_FILE, String(step)); return totp('JBSWY3DPEHPK3PXP', step - now); }
+    await new Promise((r) => setTimeout(r, 2000));   // all usable steps are spent: wait for the clock to advance
+  }
+}

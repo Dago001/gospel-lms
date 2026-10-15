@@ -31,6 +31,16 @@ class E2eSeeder extends Seeder
         $paid = Course::factory()->published()->withCurriculum(1, $lect)->priced(2500000)->create(['title' => 'E2E Paid Course', 'slug' => 'e2e-paid-course']);
         $paid->forceFill(['published_at' => now()])->save();
 
+        // The paid course ends with a required final examination, so the full journey (apply, pay, study, examine, certificate) can be tested.
+        $pbank = QuestionBank::create(['course_id' => $paid->id, 'title' => 'E2E paid bank']);
+        $pq1 = Question::create(['bank_id' => $pbank->id, 'type' => 'mcq', 'prompt' => 'Who wrote the Gospel of Luke?', 'points' => 5]);
+        foreach ([['Luke', true], ['Peter', false], ['Paul', false]] as $i => [$l, $ok]) {
+            $pq1->options()->create(['label' => $l, 'is_correct' => $ok, 'position' => $i + 1]);
+        }
+        $pq2 = Question::create(['bank_id' => $pbank->id, 'type' => 'short', 'prompt' => 'Name the fourth Gospel.', 'points' => 5, 'accepted_answers' => ['John', 'Gospel of John']]);
+        $final = Assessment::factory()->create(['course_id' => $paid->id, 'kind' => 'exam', 'title' => 'Final Examination', 'weight' => 100, 'pass_mark_percent' => 50, 'is_final_exam' => true, 'time_limit_minutes' => 20, 'review_policy' => 'immediate']);
+        $final->fixedQuestions()->sync([$pq1->id => ['position' => 1], $pq2->id => ['position' => 2]]);
+
         $bank = QuestionBank::create(['course_id' => $free->id, 'title' => 'E2E bank']);
         $q1 = Question::create(['bank_id' => $bank->id, 'type' => 'mcq', 'prompt' => 'Who wrote the Gospel of Luke?', 'points' => 5]);
         foreach ([['Luke', true], ['Peter', false], ['Paul', false]] as $i => [$l, $ok]) {

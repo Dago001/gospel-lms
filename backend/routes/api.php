@@ -264,6 +264,12 @@ Route::prefix('v1')->group(function () {
                 });
             });
             Route::middleware('permission:certificates.manage')->group(function () {
+                Route::get('certificate-template', [Admin\CertificateTemplateController::class, 'show']);
+                Route::post('certificate-template', [Admin\CertificateTemplateController::class, 'upload'])->middleware('throttle:10,1,certtpl');
+                Route::delete('certificate-template', [Admin\CertificateTemplateController::class, 'destroy']);
+                Route::put('certificate-template/layout', [Admin\CertificateTemplateController::class, 'layout']);
+                Route::get('certificate-template/image', [Admin\CertificateTemplateController::class, 'image']);
+                Route::get('certificate-template/preview', [Admin\CertificateTemplateController::class, 'preview'])->middleware('throttle:20,1,certprev');
                 Route::get('certificates', [Admin\CertificateController::class, 'index']);
                 Route::post('certificates/{certificate}/revoke', [Admin\CertificateController::class, 'revoke'])->middleware('throttle:20,1,r31');
                 Route::post('certificates/{certificate}/reissue', [Admin\CertificateController::class, 'reissue'])->middleware('throttle:20,1,r32');

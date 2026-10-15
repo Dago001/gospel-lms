@@ -5,18 +5,31 @@ import { DataTable } from '../../components/ui/DataTable.jsx';
 import { Alert, CheckField, SelectField, TextAreaField, TextField } from '../../components/ui/Fields.jsx';
 import { PageHeader, StatusBadge } from '../../components/ui/Display.jsx';
 import { Modal } from '../../components/ui/Modal.jsx';
+import { Tabs } from '../../components/ui/Tabs.jsx';
+import { CertificateTemplateTab } from './CertificateTemplate.jsx';
 import { date, dateTime } from '../../lib/format.js';
 import { useForm } from '../../lib/useForm.js';
 import { useDocumentTitle } from '../../lib/useDocumentTitle.js';
 
 export function AdminCertificates() {
   useDocumentTitle('Certificates');
+  const [tab, setTab] = useState('issued');
+  return (
+    <div>
+      <PageHeader title="Certificates" subtitle="Certificates are issued automatically when a student meets every requirement. Upload the certificate template here." />
+      <Tabs tabs={[{ id: 'issued', label: 'Issued certificates' }, { id: 'template', label: 'Template & layout' }]} active={tab} onChange={setTab}>
+        {tab === 'issued' ? <IssuedList /> : <CertificateTemplateTab />}
+      </Tabs>
+    </div>
+  );
+}
+
+function IssuedList() {
   const [f, setF] = useState({ q: '', status: '', page: 1 });
   const q = useGet(['admin', 'certificates'], '/admin/certificates', f);
   const [modal, setModal] = useState(null);
   return (
     <div>
-      <PageHeader title="Certificates" subtitle="Certificates are issued automatically by the completion engine. They can be revoked here, never created by hand." />
       <div className="filters"><TextField label="Search number or name" type="search" value={f.q} onChange={(e) => setF({ ...f, q: e.target.value, page: 1 })} /><SelectField label="Status" value={f.status} onChange={(e) => setF({ ...f, status: e.target.value, page: 1 })} placeholder="Any" options={['active', 'revoked']} /></div>
       <DataTable caption="Certificates" loading={q.isLoading} error={q.error} onRetry={q.refetch} rows={q.data?.data} meta={q.data?.meta} onPage={(p) => setF({ ...f, page: p })}
         columns={[

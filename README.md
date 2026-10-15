@@ -18,10 +18,10 @@ Demo accounts (local only): `student@`, `lecturer@`, `admin@`, `finance@demo.tes
 
 ## Tests
 ```bash
-cd backend && php artisan test         # 239 tests
+cd backend && php artisan test         # 246 tests
 cd frontend && npm test                # unit
 cd frontend && npx playwright test     # e2e + axe (needs Chromium; set E2E_CHROMIUM_PATH if Playwright's own browser is not installed)
 ```
 
 ## Documentation
-`docs/FINAL_REPORT.md` · `CREDITS.md` · `PROGRESS.md` · `API.md` · `DEPLOYMENT.md` · `OPERATIONS.md` · `SECURITY.md` · `ACCESSIBILITY.md` · `VIDEO.md` · `KNOWN_LIMITATIONS.md` · `PRODUCTION_CHECKLIST.md`
+`docs/FINAL_REPORT.md` · `CERTIFICATE_TEMPLATE.md` · `CREDITS.md` · `PROGRESS.md` · `API.md` · `DEPLOYMENT.md` · `OPERATIONS.md` · `SECURITY.md` · `ACCESSIBILITY.md` · `VIDEO.md` · `KNOWN_LIMITATIONS.md` · `PRODUCTION_CHECKLIST.md`

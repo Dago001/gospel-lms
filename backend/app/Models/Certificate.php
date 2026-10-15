@@ -16,7 +16,7 @@ class Certificate extends Model
 
     protected function casts(): array
     {
-        return ['issued_at' => 'datetime', 'show_grade' => 'boolean', 'grade_percent' => 'float'];
+        return ['issued_at' => 'datetime', 'show_grade' => 'boolean', 'grade_percent' => 'float', 'layout' => 'array'];
     }
 
     public function revocations(): HasMany
