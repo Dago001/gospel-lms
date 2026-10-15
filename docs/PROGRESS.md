@@ -2,7 +2,7 @@
 
 Status key: **Done+tested** = implemented and covered by automated tests that pass on PostgreSQL. **Implemented** = code exists, not yet exercised against the real external service. **Not started**.
 
-Last full backend run: `php vendor/bin/pest` -> 120 passed (PostgreSQL 16, PHP 8.3, Laravel 13.36).
+Last full backend run: `php vendor/bin/pest` -> 133 passed (PostgreSQL 16, PHP 8.3, Laravel 13.36).
 
 | Phase | Area | Status |
 |---|---|---|
@@ -11,7 +11,7 @@ Last full backend run: `php vendor/bin/pest` -> 120 passed (PostgreSQL 16, PHP 8
 | 4 | Categories, courses, modules, lessons, documents, workflow, versions, catalogue, learner access | Done+tested |
 | 5 | Checkout, Paystack init/verify/webhook, coupons, refunds, receipts (PDF), reconciliation, finance API | Done+tested against **faked** Paystack HTTP. Real sandbox run pending credentials (`php artisan paystack:smoke`) |
 | 6 | Cloudflare Stream hosting, YouTube, server-validated progress, lesson locking | Done+tested against fakes; real Cloudflare account run pending credentials. See docs/VIDEO.md |
-| 7 | Assignments, grading, grade audit | Not started |
+| 7 | Assignments, rubrics, late policy, auditable grading | Done+tested |
 | 8 | Question banks, quizzes, exams | Not started |
 | 9 | Zoom, attendance, notification centre | Not started (notifications table + payment notification exist) |
 | 10 | Completion engine, certificates, QR, verification | Not started (PDF + QR libraries installed) |

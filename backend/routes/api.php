@@ -4,6 +4,7 @@ use App\Http\Controllers\Api\V1\AccountController;
 use App\Http\Controllers\Api\V1\Admin;
 use App\Http\Controllers\Api\V1\AuthController;
 use App\Http\Controllers\Api\V1\CheckoutController;
+use App\Http\Controllers\Api\V1\Learn\AssignmentLearnController;
 use App\Http\Controllers\Api\V1\Learn\LearnController;
 use App\Http\Controllers\Api\V1\Learn\PlaybackController;
 use App\Http\Controllers\Api\V1\VideoWebhookController;
@@ -81,6 +82,10 @@ Route::prefix('v1')->group(function () {
             Route::post('lessons/{lesson}/complete', [PlaybackController::class, 'complete'])->middleware('throttle:30,1');
             Route::post('resources/{resource}/acknowledge', [PlaybackController::class, 'acknowledge']);
             Route::get('courses/{course}/progress', [PlaybackController::class, 'progress']);
+            Route::get('courses/{course}/assignments', [AssignmentLearnController::class, 'index']);
+            Route::get('assignments/{assignment}', [AssignmentLearnController::class, 'show']);
+            Route::post('assignments/{assignment}/submissions', [AssignmentLearnController::class, 'submit'])->middleware('throttle:20,1');
+            Route::get('submission-files/{file}', [AssignmentLearnController::class, 'downloadFile'])->middleware('throttle:60,1');
             Route::get('resources/{resource}/download', [LearnController::class, 'downloadResource'])->middleware('throttle:60,1');
         });
 
@@ -109,6 +114,18 @@ Route::prefix('v1')->group(function () {
             Route::put('modules/{module}/lessons/order', [Manage\CurriculumController::class, 'reorderLessons']);
             Route::put('lessons/{lesson}', [Manage\CurriculumController::class, 'updateLesson']);
             Route::delete('lessons/{lesson}', [Manage\CurriculumController::class, 'destroyLesson']);
+            Route::get('courses/{course}/assignments', [Manage\AssignmentController::class, 'index']);
+            Route::post('courses/{course}/assignments', [Manage\AssignmentController::class, 'store']);
+            Route::get('courses/{course}/rubrics', [Manage\AssignmentController::class, 'rubrics']);
+            Route::post('courses/{course}/rubrics', [Manage\AssignmentController::class, 'storeRubric']);
+            Route::get('assignments/{assignment}', [Manage\AssignmentController::class, 'show']);
+            Route::put('assignments/{assignment}', [Manage\AssignmentController::class, 'update']);
+            Route::post('assignments/{assignment}/publish', [Manage\AssignmentController::class, 'publish']);
+            Route::get('assignments/{assignment}/submissions', [Manage\AssignmentController::class, 'submissions']);
+            Route::get('submissions/{submission}', [Manage\AssignmentController::class, 'submission']);
+            Route::post('submissions/{submission}/grade', [Manage\AssignmentController::class, 'grade'])->middleware('throttle:120,1');
+            Route::post('submissions/{submission}/return', [Manage\AssignmentController::class, 'returnForRevision']);
+            Route::get('submission-files/{file}', [Manage\AssignmentController::class, 'downloadFile'])->middleware('throttle:120,1');
             Route::post('lessons/{lesson}/video/upload', [Manage\VideoController::class, 'authoriseUpload'])->middleware('throttle:20,1');
             Route::get('video-assets/{asset}', [Manage\VideoController::class, 'status']);
             Route::post('lessons/{lesson}/resources', [Manage\CurriculumController::class, 'uploadResource'])->middleware('throttle:30,1');
