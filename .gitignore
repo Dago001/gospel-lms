@@ -3,3 +3,6 @@ vendor/
 .env
 dist/
 .DS_Store
+frontend/test-results/
+frontend/playwright-report/
+backend/storage/app/backups/

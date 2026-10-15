@@ -32,6 +32,8 @@ export function LessonPlayer() {
       <Alert type="warning" title="This lesson is locked">Complete the earlier lessons first. <Link to={`/student/courses/${courseId}`}>Back to the course</Link></Alert></div>
   );
   if (lesson.error) return <ErrorState error={lesson.error} onRetry={lesson.refetch} />;
+  if (course.error) return <ErrorState error={course.error} onRetry={course.refetch} />;
+  if (!c || !l) return <Loading rows={6} />;
 
   return (
     <div>
