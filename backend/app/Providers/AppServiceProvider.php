@@ -20,6 +20,9 @@ class AppServiceProvider extends ServiceProvider
 
     public function boot(): void
     {
+        // Explicit registration: completion must never depend on listener auto-discovery.
+        \Illuminate\Support\Facades\Event::listen([\App\Events\LessonCompleted::class, \App\Events\GradePublished::class], \App\Listeners\ReevaluateCompletion::class);
+
         if ($this->app->isProduction()) {
             URL::forceScheme('https');
         }

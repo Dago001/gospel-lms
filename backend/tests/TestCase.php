@@ -11,6 +11,7 @@ abstract class TestCase extends BaseTestCase
     protected function setUp(): void
     {
         parent::setUp();
+        \Illuminate\Support\Facades\Cache::flush();   // rate-limiter counters must not leak between tests
         // The SPA's origin makes Sanctum treat requests as first-party (stateful, session-backed).
         $this->withHeaders(['Origin' => 'http://localhost:5173', 'Referer' => 'http://localhost:5173/']);
     }

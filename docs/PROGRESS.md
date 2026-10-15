@@ -14,7 +14,7 @@ Last full backend run: `php vendor/bin/pest` -> 133 passed (PostgreSQL 16, PHP 8
 | 7 | Assignments, rubrics, late policy, auditable grading | Done+tested |
 | 8 | Question banks, quizzes, timed exams, auto + manual marking, retakes, supplementary | Done+tested |
 | 9 | Zoom, attendance, notification centre | Not started (notifications table + payment notification exist) |
-| 10 | Completion engine, certificates, QR, verification | Not started (PDF + QR libraries installed) |
+| 10 | Completion engine, certificate PDFs + QR, public verification, revocation | Done+tested |
 | 11 | Admin portal UI, reports, accessibility, load tests | Not started |
 | 12 | Deployment, backup/restore test | Not started |
 | - | React application (public site, portals, design system) | Not started |
