@@ -11,6 +11,8 @@ use App\Http\Controllers\Api\V1\Learn\LearnController;
 use App\Http\Controllers\Api\V1\Learn\PlaybackController;
 use App\Http\Controllers\Api\V1\VideoWebhookController;
 use App\Http\Controllers\Api\V1\Comms;
+use App\Http\Controllers\Api\V1\PrivacyController;
+use App\Http\Controllers\Api\V1\Report;
 use App\Http\Controllers\Api\V1\ZoomWebhookController;
 use App\Http\Controllers\Api\V1\Learn\LiveLearnController;
 use App\Http\Controllers\Api\V1\PaymentWebhookController;
@@ -65,6 +67,10 @@ Route::prefix('v1')->group(function () {
             Route::put('password', [AccountController::class, 'updatePassword'])->middleware('throttle:password-change');
             Route::post('photo', [AccountController::class, 'uploadPhoto']);
             Route::get('photo', [AccountController::class, 'photo']);
+            Route::get('consents', [PrivacyController::class, 'consents']);
+            Route::get('data-exports', [PrivacyController::class, 'exports']);
+            Route::post('data-exports', [PrivacyController::class, 'requestExport'])->middleware('throttle:3,60,dataexport');
+            Route::get('data-exports/{export}/download', [PrivacyController::class, 'download'])->middleware('throttle:10,60,exportdl');
             Route::get('sessions', [AccountController::class, 'sessions']);
             Route::delete('sessions/{session}', [AccountController::class, 'revokeSession']);
         });
@@ -83,6 +89,11 @@ Route::prefix('v1')->group(function () {
             Route::get('{ticket}', [Comms\SupportController::class, 'show']);
             Route::post('{ticket}/messages', [Comms\SupportController::class, 'reply'])->middleware('throttle:30,60,ticketreply');
             Route::post('{ticket}/close', [Comms\SupportController::class, 'close']);
+        });
+
+        Route::middleware('mfa')->group(function () {
+            Route::get('student/dashboard', [Report\DashboardController::class, 'student']);
+            Route::get('manage/dashboard', [Report\DashboardController::class, 'lecturer'])->middleware('permission:courses.manage-own,courses.manage-all');
         });
 
         // Checkout and billing (students)
@@ -188,6 +199,7 @@ Route::prefix('v1')->group(function () {
             Route::get('assessments/{assessment}/attempts', [Manage\AssessmentController::class, 'attempts']);
             Route::get('attempts/{attempt}', [Manage\AssessmentController::class, 'attempt']);
             Route::put('attempts/{attempt}/responses/{questionId}/mark', [Manage\AssessmentController::class, 'markResponse'])->middleware('throttle:300,1,r25');
+            Route::get('courses/{course}/analytics', [Report\ReportController::class, 'course']);
             Route::get('courses/{course}/completion-policy', [Manage\CompletionController::class, 'policy']);
             Route::put('courses/{course}/completion-policy', [Manage\CompletionController::class, 'updatePolicy']);
             Route::get('courses/{course}/completion-report', [Manage\CompletionController::class, 'report']);
@@ -248,6 +260,22 @@ Route::prefix('v1')->group(function () {
                 Route::post('certificates/{certificate}/revoke', [Admin\CertificateController::class, 'revoke'])->middleware('throttle:20,1,r31');
                 Route::post('certificates/{certificate}/reissue', [Admin\CertificateController::class, 'reissue'])->middleware('throttle:20,1,r32');
             });
+            Route::middleware('permission:reports.academic,reports.finance')->get('dashboard', [Report\DashboardController::class, 'admin']);
+            Route::middleware('permission:reports.academic')->prefix('reports')->group(function () {
+                foreach (['enrolments', 'completion', 'assessments', 'gradingQueue' => 'grading-queue', 'attendance', 'certificates'] as $k => $name) {
+                    $method = is_int($k) ? $name : $k;
+                    Route::get($name, [Report\ReportController::class, $method])->middleware('throttle:30,1,rep'.$name);
+                }
+            });
+            Route::middleware('permission:settings.manage')->group(function () {
+                Route::get('settings', [Admin\SystemController::class, 'settings']);
+                Route::put('settings', [Admin\SystemController::class, 'updateSettings']);
+                Route::get('integrations', [Admin\SystemController::class, 'integrations']);
+                Route::get('health', [Admin\SystemController::class, 'health']);
+                Route::get('backups', [Admin\SystemController::class, 'backups']);
+            });
+            Route::get('audit-logs', [Admin\SystemController::class, 'auditLogs'])->middleware(['permission:audit.view', 'throttle:30,1,auditlog']);
+            Route::post('users/{user}/anonymise', [Admin\UserController::class, 'anonymise'])->middleware(['permission:users.manage', 'throttle:10,1,anon']);
             Route::middleware('permission:support.manage')->group(function () {
                 Route::get('support/tickets', [Comms\SupportController::class, 'staffIndex']);
                 Route::get('support/tickets/{ticket}', [Comms\SupportController::class, 'staffShow']);

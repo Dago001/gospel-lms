@@ -85,7 +85,7 @@ class User extends Authenticatable implements MustVerifyEmail
 
     public function isSuspended(): bool
     {
-        return $this->status === 'suspended';
+        return $this->status !== 'active';   // suspended or anonymised accounts can never act
     }
 
     /** Privileged users are required to hold a confirmed second factor. */

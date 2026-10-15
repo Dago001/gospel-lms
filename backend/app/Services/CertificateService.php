@@ -44,7 +44,7 @@ class CertificateService
             $cert = DB::transaction(fn () => Certificate::create([
                 'number' => $this->uniqueNumber(), 'verification_code' => Str::lower(Str::random(32)), 'user_id' => $user->id, 'course_id' => $course->id, 'status' => 'active',
                 'holder_name' => $user->name, 'course_title' => $course->title, 'duration_minutes' => $course->durationMinutes() ?: null, 'grade_percent' => $grade,
-                'show_grade' => (bool) $policy['show_grade_on_certificate'], 'signatory_name' => config('academy.signatory_name'), 'signatory_title' => config('academy.signatory_title'), 'issued_at' => now(),
+                'show_grade' => (bool) $policy['show_grade_on_certificate'], 'signatory_name' => Settings::academy()['signatory_name'], 'signatory_title' => Settings::academy()['signatory_title'], 'issued_at' => now(),
             ]));
         } catch (UniqueConstraintViolationException) {
             return Certificate::where(['user_id' => $user->id, 'course_id' => $course->id, 'status' => 'active'])->firstOrFail();   // lost a race: the winner's certificate is the certificate
@@ -102,6 +102,6 @@ class CertificateService
     {
         $qr = (new Builder(writer: new PngWriter, data: $this->verifyUrl($c), size: 220, margin: 6))->build()->getDataUri();
 
-        return Pdf::loadView('pdf.certificate', ['c' => $c, 'qr' => $qr, 'url' => $this->verifyUrl($c), 'academy' => config('academy')])->setPaper('a4', 'landscape')->output();
+        return Pdf::loadView('pdf.certificate', ['c' => $c, 'qr' => $qr, 'url' => $this->verifyUrl($c), 'academy' => Settings::academy()])->setPaper('a4', 'landscape')->output();
     }
 }

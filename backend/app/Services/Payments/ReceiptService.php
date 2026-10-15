@@ -35,6 +35,6 @@ class ReceiptService
 
     public function pdf(Receipt $receipt): string
     {
-        return Pdf::loadView('pdf.receipt', ['receipt' => $receipt, 'd' => $receipt->data, 'academy' => config('academy')])->setPaper('a4')->output();
+        return Pdf::loadView('pdf.receipt', ['receipt' => $receipt, 'd' => $receipt->data, 'academy' => \App\Services\Settings::academy()])->setPaper('a4')->output();
     }
 }

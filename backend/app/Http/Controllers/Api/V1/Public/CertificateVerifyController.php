@@ -25,6 +25,6 @@ class CertificateVerifyController extends Controller
         }
 
         return response()->json(['data' => ['status' => $result, 'certificate_number' => $cert->number, 'holder_name' => $cert->holder_name, 'course_title' => $cert->course_title,
-            'issued_on' => $cert->issued_at->toDateString(), 'issuer' => config('academy.name')]]);
+            'issued_on' => $cert->issued_at->toDateString(), 'issuer' => \App\Services\Settings::academy()['name']]]);
     }
 }

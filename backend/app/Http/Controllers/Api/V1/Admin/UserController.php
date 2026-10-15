@@ -97,6 +97,38 @@ class UserController extends Controller
         return response()->json(['message' => 'User suspended.']);
     }
 
+    /**
+     * Erasure request: removes identifying details but keeps the user row so grades, payments and certificates (which the
+     * academy must retain) stay consistent. Irreversible.
+     */
+    public function anonymise(Request $request, User $user): JsonResponse
+    {
+        $reason = $request->validate(['reason' => ['required', 'string', 'min:5', 'max:255'], 'confirm_email' => ['required', 'email']]);
+        if (strtolower($reason['confirm_email']) !== strtolower($user->email)) {
+            return response()->json(['message' => 'Type the account email to confirm.', 'code' => 'confirmation_mismatch'], 422);
+        }
+        if ($user->is($request->user()) || $user->hasRole(Roles::ADMIN)) {
+            return response()->json(['message' => 'Administrator accounts cannot be anonymised here.', 'code' => 'not_allowed'], 422);
+        }
+        if (\App\Models\Order::where('user_id', $user->id)->where('status', 'pending')->where('expires_at', '>', now())->exists()) {
+            return response()->json(['message' => 'The user has a payment in progress.', 'code' => 'pending_order'], 409);
+        }
+        DB::transaction(function () use ($user, $reason) {
+            $this->sessions->revokeAll($user);
+            if ($path = $user->profile?->photo_path) {
+                \Illuminate\Support\Facades\Storage::disk('private')->delete($path);
+            }
+            $user->profile()?->delete();
+            $user->twoFactor()->delete();
+            $user->notifications()->delete();
+            \App\Models\NotificationPreference::where('user_id', $user->id)->delete();
+            $user->forceFill(['name' => 'Former user', 'email' => 'anonymised+'.$user->id.'@invalid.example', 'password' => Str::random(64), 'status' => 'anonymised', 'remember_token' => null, 'email_verified_at' => null])->save();
+            $this->audit->log('user.anonymised', $user, reason: $reason['reason']);
+        });
+
+        return response()->json(['message' => 'Account anonymised.']);
+    }
+
     public function reactivate(User $user): JsonResponse
     {
         $user->forceFill(['status' => 'active', 'suspended_at' => null, 'suspension_reason' => null])->save();
