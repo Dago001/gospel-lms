@@ -1,6 +1,6 @@
 GOSPEL LMS - LOCAL DEMO ON WINDOWS
 ==================================
-You need ONLY two things installed (no Composer, no Node needed):
+You need ONLY two things installed (no Composer, no Node.js, nothing else):
 
  1. PHP 8.3 or newer (x64, "Thread Safe" zip) from https://windows.php.net/download/
       - unzip to C:\php
@@ -29,8 +29,8 @@ or add the secret JBSWY3DPEHPK3PXP to Google Authenticator ("enter a setup key")
 
 COURSES IN THE DEMO
     "[DEMO] Introduction to the Gospels"  - free, 2 lessons (unlock in order) + a quiz
-    "E2E Paid Course" - N25,000, ends with a FINAL EXAM. Paying uses a built-in DEMO payment page (needs Node.js; it is NOT Paystack
-                        and moves no money). Without Node.js, show the free course instead.
+    "E2E Paid Course" - N25,000, ends with a FINAL EXAM. Paying uses a built-in DEMO payment page (it is NOT Paystack
+                        and moves no money; it is a small PHP script started by start-demo.bat).
     Full journey to show: register -> verify email -> pay -> lesson -> final exam -> certificate -> public verification (/verify).
 
 EMAIL: nothing is really sent. To verify a new student's email, open  backend\storage\logs\laravel.log  and copy the last

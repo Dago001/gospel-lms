@@ -11,7 +11,7 @@ sudo apt install nginx postgresql-16 postgresql-client-16 redis-server superviso
   php8.3-fpm php8.3-cli php8.3-pgsql php8.3-redis php8.3-mbstring php8.3-xml php8.3-curl php8.3-zip php8.3-gd php8.3-intl php8.3-bcmath
 # optional but recommended: sudo apt install clamav-daemon   (then CLAMAV_ENABLED=true)
 ```
-Node 22 is needed only on the build machine (CI or a release host), not on the web server.
+**No Node.js on the server.** The React site is compiled in advance into static files; only a build machine (or `scripts/build-cpanel.sh`) ever needs Node, and the web server runs PHP + PostgreSQL only.
 
 ## 2. Database
 

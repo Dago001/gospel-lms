@@ -26,7 +26,7 @@ find "$STAGE/backend/vendor" -name .git -type d -prune -exec rm -rf {} +
 find "$STAGE/backend/vendor" -mindepth 3 -maxdepth 3 -type d \( -name tests -o -name Tests -o -name test -o -name docs -o -name examples -o -name .github \) -prune -exec rm -rf {} +
 find "$STAGE/backend/vendor" -type f \( -name '*.md' -o -name 'phpunit*.xml*' -o -name '.gitattributes' \) -delete
 cp -R "$ROOT/frontend/dist/." "$STAGE/backend/public/"
-cp "$ROOT"/scripts/local-demo/{local-router.php,env.local.example,totp-code.php,setup-demo.ps1,start-demo.bat,fake-paystack.mjs,README-DEMO.txt} "$STAGE/"
+cp "$ROOT"/scripts/local-demo/{local-router.php,env.local.example,totp-code.php,setup-demo.ps1,start-demo.bat,fake-paystack.php,README-DEMO.txt} "$STAGE/"
 cp "$ROOT/docs/samples/certificate-template-sample.png" "$STAGE/"
 mkdir -p "$OUT"; rm -f "$OUT/gospel-lms-demo.zip"
 (cd "$STAGE" && zip -qr "$OUT/gospel-lms-demo.zip" .)

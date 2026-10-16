@@ -9,7 +9,7 @@ test.describe('paid enrolment through the (fake) Paystack gateway', () => {
     await expect(page.getByRole('button', { name: /Pay ₦25,000\.00/ })).toBeVisible();
     await page.getByRole('button', { name: /Pay ₦25,000\.00/ }).click();
 
-    await expect(page).toHaveURL(/localhost:9099\/pay\//);                       // redirected to the hosted gateway
+    await expect(page).toHaveURL(/(localhost|127\.0\.0\.1):9099\/pay\//);                       // redirected to the hosted gateway
     await expect(page.getByText('NGN 25000.00')).toBeVisible();
     await page.locator('#pay').click();
 

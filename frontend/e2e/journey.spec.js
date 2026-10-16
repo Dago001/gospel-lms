@@ -9,7 +9,7 @@ test('the whole student journey: apply online, pay, study, sit the final exam, r
   // 2. Pay for the course through the (fake) Paystack gateway
   await page.goto('/courses/e2e-paid-course');
   await page.getByRole('button', { name: /Pay ₦25,000\.00/ }).click();
-  await expect(page).toHaveURL(/localhost:9099\/pay\//);
+  await expect(page).toHaveURL(/(localhost|127\.0\.0\.1):9099\/pay\//);
   await page.locator('#pay').click();
   await expect(page.getByRole('heading', { name: 'Payment confirmed' })).toBeVisible({ timeout: 15_000 });
 
