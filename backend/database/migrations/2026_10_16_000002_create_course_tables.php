@@ -9,7 +9,12 @@ return new class extends Migration
 {
     public function up(): void
     {
-        DB::statement('CREATE EXTENSION IF NOT EXISTS pg_trgm');
+        // Trigram search indexes are an optimisation only. Some hosts do not ship PostgreSQL's contrib extensions, so skip them there
+        // (course search then uses plain ILIKE, which is fast enough for a catalogue of this size).
+        $trigram = DB::selectOne("select 1 as ok from pg_available_extensions where name = 'pg_trgm'") !== null;
+        if ($trigram) {
+            DB::statement('CREATE EXTENSION IF NOT EXISTS pg_trgm');
+        }
 
         Schema::create('categories', function (Blueprint $t) {
             $t->uuid('id')->primary();
@@ -57,7 +62,9 @@ return new class extends Migration
         DB::statement('ALTER TABLE courses ADD CONSTRAINT courses_discount_valid CHECK (discount_price_minor IS NULL OR discount_price_minor <= price_minor)');
         DB::statement('ALTER TABLE courses ADD CONSTRAINT courses_video_pct CHECK (video_completion_percent BETWEEN 1 AND 100)');
         DB::statement("ALTER TABLE courses ADD CONSTRAINT courses_status_valid CHECK (status IN ('draft','pending_review','approved','published','archived'))");
-        DB::statement('CREATE INDEX courses_title_trgm ON courses USING gin (title gin_trgm_ops)');
+        if ($trigram) {
+            DB::statement('CREATE INDEX courses_title_trgm ON courses USING gin (title gin_trgm_ops)');
+        }
 
         Schema::create('course_instructors', function (Blueprint $t) {
             $t->foreignUuid('course_id')->constrained()->cascadeOnDelete();

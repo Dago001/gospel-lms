@@ -36,7 +36,7 @@ $PHP artisan db:seed --class=RolesAndPermissionsSeeder --force
 $PHP artisan gospel:create-admin          # follow the prompts; this is your administrator
 $PHP artisan optimize
 ```
-Never run `StarterSeeder` or `SampleDataSeeder` here. If `migrate` fails on `pg_trgm`, ask the host to run `CREATE EXTENSION pg_trgm;` in your database (or enable it from phpPgAdmin as the database owner).
+Never run `StarterSeeder` or `SampleDataSeeder` here. The `pg_trgm` search-index extension is optional: if the host does not provide it, migrations skip it automatically.
 
 ## 6. Scheduled tasks (cPanel → **Cron Jobs**, add two, "Once Per Minute" `* * * * *`)
 ```
