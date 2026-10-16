@@ -30,8 +30,8 @@ class AppServiceProvider extends ServiceProvider
         }
 
         Password::defaults(fn () => $this->app->isProduction()
-            ? Password::min(10)->mixedCase()->numbers()->uncompromised()
-            : Password::min(10)->mixedCase()->numbers());
+            ? Password::min(8)->mixedCase()->numbers()->uncompromised()
+            : Password::min(8)->mixedCase()->numbers());
 
         ResetPassword::createUrlUsing(fn ($user, string $token) => rtrim(config('app.frontend_url'), '/')
             .'/reset-password?token='.$token.'&email='.urlencode($user->getEmailForPasswordReset()));

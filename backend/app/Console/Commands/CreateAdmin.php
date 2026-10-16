@@ -16,9 +16,9 @@ class CreateAdmin extends Command
 
     public function handle(): int
     {
-        $password = $this->option('password') ?: $this->secret('Password (min 10 chars, mixed case, number)');
+        $password = $this->option('password') ?: $this->secret('Password (min 8 chars, mixed case, number)');
         $v = Validator::make(['email' => $this->argument('email'), 'password' => $password],
-            ['email' => ['email', 'unique:users,email'], 'password' => [Password::min(10)->mixedCase()->numbers()]]);
+            ['email' => ['email', 'unique:users,email'], 'password' => [Password::min(8)->mixedCase()->numbers()]]);
         if ($v->fails()) {
             $this->error(implode("\n", $v->errors()->all()));
 

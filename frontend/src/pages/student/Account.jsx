@@ -54,7 +54,7 @@ function Password() {
     <form onSubmit={submit} noValidate>
       {ok && <Alert type="success">Password changed. Your other devices were signed out.</Alert>}{f.formError && <Alert type="error">{f.formError}</Alert>}
       <TextField label="Current password" type="password" autoComplete="current-password" required {...f.bind('current_password')} />
-      <TextField label="New password" type="password" autoComplete="new-password" required help="At least 10 characters, with upper and lower case letters and a number." {...f.bind('password')} />
+      <TextField label="New password" type="password" autoComplete="new-password" required help="At least 8 characters, with upper and lower case letters and a number." {...f.bind('password')} />
       <TextField label="Confirm new password" type="password" autoComplete="new-password" required {...f.bind('password_confirmation')} />
       <button className="btn btn-primary" disabled={f.submitting}>Change password</button>
     </form>

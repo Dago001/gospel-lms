@@ -125,3 +125,13 @@ it('answers the SPA session probe with null for guests and the user once signed 
     $this->postJson('/api/v1/auth/login', ['email' => $u->email, 'password' => 'Password-12345'])->assertOk();
     $this->getJson('/api/v1/auth/session')->assertOk()->assertJsonPath('data.email', $u->email);
 });
+
+it('requires at least 8 characters with upper and lower case letters and a number', function () {
+    $this->seedRoles();
+    Notification::fake();
+    $base = ['name' => 'Ada Obi', 'email' => 'ada@example.com', 'accept_terms' => true];
+    foreach (['Abcdef1' => false, 'abcdefg1' => false, 'ABCDEFG1' => false, 'Abcdefgh' => false, 'Abcdefg1' => true] as $pw => $ok) {
+        $res = $this->postJson('/api/v1/auth/register', [...$base, 'email' => strtolower($pw).'@example.com', 'password' => $pw, 'password_confirmation' => $pw]);
+        $ok ? $res->assertCreated() : $res->assertUnprocessable()->assertJsonValidationErrors('password');
+    }
+});

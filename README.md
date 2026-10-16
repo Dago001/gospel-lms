@@ -18,7 +18,7 @@ Sample accounts (local only): `student@`, `lecturer@`, `admin@`, `finance@academ
 
 ## Tests
 ```bash
-cd backend && php artisan test         # 246 tests
+cd backend && php artisan test         # 247 tests
 cd frontend && npm test                # unit
 cd frontend && npx playwright test     # e2e + axe (needs Chromium; set E2E_CHROMIUM_PATH if Playwright's own browser is not installed)
 ```

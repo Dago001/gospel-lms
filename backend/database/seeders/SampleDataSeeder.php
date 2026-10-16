@@ -21,6 +21,7 @@ class SampleDataSeeder extends Seeder
             return;
         }
         $this->call(StarterSeeder::class);
+        $this->call(CatalogueSeeder::class);
         foreach (['admin@academy.test', 'finance@academy.test'] as $email) {
             TwoFactorAuthentication::updateOrCreate(['user_id' => User::where('email', $email)->value('id')], ['secret' => self::TOTP_SECRET, 'recovery_codes' => [], 'confirmed_at' => now()]);
         }

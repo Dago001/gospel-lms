@@ -80,7 +80,7 @@ export function Register() {
         {f.formError && <Alert type="error">{f.formError}</Alert>}
         <TextField label="Full name" autoComplete="name" required {...f.bind('name')} help="As you want it to appear on your certificate." />
         <TextField label="Email" type="email" autoComplete="email" required {...f.bind('email')} />
-        <TextField label="Password" type="password" autoComplete="new-password" required help="At least 10 characters with upper and lower case letters and a number." {...f.bind('password')} />
+        <TextField label="Password" type="password" autoComplete="new-password" required help="At least 8 characters with upper and lower case letters and a number." {...f.bind('password')} />
         <TextField label="Confirm password" type="password" autoComplete="new-password" required {...f.bind('password_confirmation')} />
         <CheckField error={f.errors.accept_terms?.[0]} {...f.bind('accept_terms', { checkbox: true })}>I agree to the <Link to="/terms" target="_blank">terms</Link> and <Link to="/privacy" target="_blank">privacy policy</Link>.</CheckField>
         <button className="btn btn-primary btn-block" disabled={f.submitting}>{f.submitting ? 'Creating…' : 'Create account'}</button>

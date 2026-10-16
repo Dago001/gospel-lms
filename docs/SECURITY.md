@@ -4,7 +4,7 @@
 
 | Area | Control |
 |---|---|
-| Authentication | Sanctum cookie session (HttpOnly, SameSite=lax, Secure in production), CSRF on all unsafe methods, per-email+IP and per-IP login throttling, password rules (min 10, mixed case, number; plus the breached-password check in production), session list with revocation, session regeneration at login |
+| Authentication | Sanctum cookie session (HttpOnly, SameSite=lax, Secure in production), CSRF on all unsafe methods, per-email+IP and per-IP login throttling, password rules (min 8, mixed case, number; plus the breached-password check in production), session list with revocation, session regeneration at login |
 | Privileged accounts | `admin` and `finance` must enrol TOTP (RFC 6238, replay-protected, hashed recovery codes) before any privileged route is reachable |
 | Authorisation | Permission table checked server-side per route (`RequirePermission`) plus policies for ownership/enrolment. The SPA hides links but is never the control. Mass-assignment is whitelisted per model |
 | Payments | Amounts calculated on the server from stored prices/coupons; Paystack transaction verified server-side (amount, currency, reference, order metadata, gateway mode); webhook HMAC-SHA512 verified; settlement idempotent under row locks; one success per order (partial unique index); mismatches and unknown outcomes recorded and frozen for review; refunds protected by balance checks |

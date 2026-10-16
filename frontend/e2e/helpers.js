@@ -29,8 +29,12 @@ export async function signIn(page, email, password = PASSWORD, { mfa = false } =
   await page.getByLabel('Password').fill(password);
   await page.getByRole('button', { name: 'Sign in' }).click();
   if (mfa) {
-    await page.getByLabel('Code').fill(await freshTotp());
-    await page.getByRole('button', { name: 'Verify' }).click();
+    for (let attempt = 0; attempt < 3; attempt++) {       // a code can be refused near a 30-second boundary; try the next step
+      await page.getByLabel('Code').fill(await freshTotp());
+      await page.getByRole('button', { name: 'Verify' }).click();
+      const gone = await page.getByLabel('Code').waitFor({ state: 'detached', timeout: 4000 }).then(() => true, () => false);
+      if (gone) break;
+    }
   }
   await expect(page).not.toHaveURL(/\/login/);
 }
