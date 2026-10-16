@@ -6,3 +6,4 @@ dist/
 frontend/test-results/
 frontend/playwright-report/
 backend/storage/app/backups/
+dist-cpanel/
