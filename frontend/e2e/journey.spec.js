@@ -7,7 +7,7 @@ test('the whole student journey: apply online, pay, study, sit the final exam, r
   verifyEmail(email);
 
   // 2. Pay for the course through the (fake) Paystack gateway
-  await page.goto('/courses/e2e-paid-course');
+  await page.goto('/courses/foundations-of-discipleship');
   await page.getByRole('button', { name: /Pay ₦25,000\.00/ }).click();
   await expect(page).toHaveURL(/(localhost|127\.0\.0\.1):9099\/pay\//);
   await page.locator('#pay').click();
@@ -19,7 +19,7 @@ test('the whole student journey: apply online, pay, study, sit the final exam, r
 
   // 4. Study: complete the required lesson
   await page.goto('/student/courses');
-  await page.getByRole('link', { name: 'E2E Paid Course' }).click();
+  await page.getByRole('link', { name: 'Foundations of Discipleship' }).click();
   await page.getByRole('tab', { name: 'Lessons' }).click();
   await page.locator('a[href*="/lessons/"]').first().click();
   await page.getByRole('button', { name: 'Mark lesson as complete' }).click();
@@ -31,7 +31,7 @@ test('the whole student journey: apply online, pay, study, sit the final exam, r
 
   // 6. Sit and pass the final examination
   await page.goto('/student/courses');
-  await page.getByRole('link', { name: 'E2E Paid Course' }).click();
+  await page.getByRole('link', { name: 'Foundations of Discipleship' }).click();
   await page.getByRole('tab', { name: 'Assessments' }).click();
   await page.getByRole('button', { name: 'Start' }).click();
   await page.getByLabel('Luke').check();
@@ -46,7 +46,7 @@ test('the whole student journey: apply online, pay, study, sit the final exam, r
   // 7. The certificate is issued by the server and carries the student's own details
   await page.goto('/student/certificates');
   await expect(page.getByText('Grace Adeyemi').first()).toBeVisible();
-  await expect(page.getByText('E2E Paid Course').first()).toBeVisible();
+  await expect(page.getByText('Foundations of Discipleship').first()).toBeVisible();
   const dl = page.getByRole('link', { name: /Download/ }).first();
   const href = await dl.getAttribute('href');
   const pdf = await page.request.get(href, { headers: { referer: page.url() } });

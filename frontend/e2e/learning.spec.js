@@ -25,7 +25,7 @@ test.describe('public site', () => {
 test.describe('accounts and access control', () => {
   test('wrong password shows a helpful error and signs nobody in', async ({ page }) => {
     await page.goto('/login');
-    await page.getByLabel('Email').fill('student@demo.test');
+    await page.getByLabel('Email').fill('student@academy.test');
     await page.getByLabel('Password').fill('nope-nope-nope');
     await page.getByRole('button', { name: 'Sign in' }).click();
     await expect(page.getByRole('alert')).toContainText(/do not match/i);
@@ -35,14 +35,14 @@ test.describe('accounts and access control', () => {
   test('protected pages send guests to sign in and return them afterwards', async ({ page }) => {
     await page.goto('/student/courses');
     await expect(page).toHaveURL(/\/login\?next=%2Fstudent%2Fcourses/);
-    await page.getByLabel('Email').fill('student@demo.test');
+    await page.getByLabel('Email').fill('student@academy.test');
     await page.getByLabel('Password').fill(PASSWORD);
     await page.getByRole('button', { name: 'Sign in' }).click();
     await expect(page).toHaveURL(/\/student\/courses/);
   });
 
   test('a student cannot open the admin or lecturer areas', async ({ page }) => {
-    await signIn(page, 'student@demo.test');
+    await signIn(page, 'student@academy.test');
     await page.goto('/admin');
     await expect(page.getByText('You do not have access to this page')).toBeVisible();
     await page.goto('/lecturer');
@@ -51,7 +51,7 @@ test.describe('accounts and access control', () => {
 
   test('a crafted ?next= cannot redirect off-site', async ({ page }) => {
     await page.goto('/login?next=//evil.example/x');
-    await page.getByLabel('Email').fill('student@demo.test');
+    await page.getByLabel('Email').fill('student@academy.test');
     await page.getByLabel('Password').fill(PASSWORD);
     await page.getByRole('button', { name: 'Sign in' }).click();
     await expect(page).toHaveURL(/localhost:5174\/student/);
@@ -60,7 +60,7 @@ test.describe('accounts and access control', () => {
   test('registration, then enrolment is blocked until the email is verified', async ({ page }) => {
     const email = await registerStudent(page);
     await expect(page.getByText('Verify your email address')).toBeVisible();
-    await page.goto('/courses/demo-introduction-to-the-gospels');
+    await page.goto('/courses/introduction-to-the-gospels');
     await page.getByRole('button', { name: 'Enrol for free' }).click();
     await expect(page.getByText(/verify your email/i).first()).toBeVisible();
     verifyEmail(email);
@@ -74,7 +74,7 @@ test.describe('learning', () => {
   test('lessons unlock in order and completion is decided by the server', async ({ page }) => {
     const email = await registerStudent(page, 'Lesson Learner');
     verifyEmail(email);
-    await page.goto('/courses/demo-introduction-to-the-gospels');
+    await page.goto('/courses/introduction-to-the-gospels');
     await page.getByRole('button', { name: 'Enrol for free' }).click();
     await expect(page).toHaveURL(/\/student\/courses\//);
 
@@ -91,7 +91,7 @@ test.describe('learning', () => {
   test('a timed quiz autosaves answers, survives a reload, submits and shows the result', async ({ page }) => {
     const email = await registerStudent(page, 'Quiz Taker');
     verifyEmail(email);
-    await page.goto('/courses/demo-introduction-to-the-gospels');
+    await page.goto('/courses/introduction-to-the-gospels');
     await page.getByRole('button', { name: 'Enrol for free' }).click();
     await page.getByRole('tab', { name: 'Assessments' }).click();
     await page.getByRole('button', { name: 'Start' }).click();

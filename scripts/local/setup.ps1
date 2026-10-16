@@ -1,12 +1,12 @@
-# GOSPEL LMS: one-time local demo setup on Windows. Run from the folder that contains `backend`:
-#   powershell -ExecutionPolicy Bypass -File setup-demo.ps1
+# GOSPEL LMS: one-time local setup on Windows. Run from the folder that contains `backend`:
+#   powershell -ExecutionPolicy Bypass -File setup.ps1
 $ErrorActionPreference = 'Stop'
 $root = Split-Path -Parent $MyInvocation.MyCommand.Path
 $backend = Join-Path $root 'backend'
 if (-not (Test-Path $backend)) { throw "Cannot find the 'backend' folder next to this script." }
 
 function Need($name, $hint) { if (-not (Get-Command $name -ErrorAction SilentlyContinue)) { throw "$name was not found. $hint" } }
-Need php 'Install PHP 8.3 or newer and add it to PATH (see README-DEMO.txt).'
+Need php 'Install PHP 8.3 or newer and add it to PATH (see README.txt).'
 
 $v = (php -r 'echo PHP_VERSION;')
 if ([version]($v -replace '[^0-9.].*','') -lt [version]'8.3.0') { throw "PHP $v is too old. PHP 8.3 or newer is required." }
@@ -46,8 +46,8 @@ Push-Location $backend
 if (-not (Test-Path .env)) { Copy-Item (Join-Path $root 'env.local.example') .env }
 php artisan key:generate --force
 php artisan migrate:fresh --force
-php artisan db:seed --class='Database\Seeders\E2eSeeder' --force
+php artisan db:seed --class='Database\Seeders\SampleDataSeeder' --force
 php artisan optimize:clear | Out-Null
 Pop-Location
 Write-Host ''
-Write-Host 'Setup finished. Start the demo with start-demo.bat, then open http://127.0.0.1:8000' -ForegroundColor Green
+Write-Host 'Setup finished. Start the application with start.bat, then open http://127.0.0.1:8000' -ForegroundColor Green

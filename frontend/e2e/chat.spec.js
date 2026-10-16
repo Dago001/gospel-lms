@@ -16,7 +16,7 @@ test.describe('help assistant', () => {
     const card = page.getByRole('log').getByRole('link', { name: /Introduction to the Gospels/ });
     await expect(card).toBeVisible();
     await card.click();
-    await expect(page).toHaveURL(/\/courses\/demo-introduction-to-the-gospels/);
+    await expect(page).toHaveURL(/\/courses\/introduction-to-the-gospels/);
     await expect(page.getByRole('dialog', { name: /help assistant/i })).toBeVisible();   // stays open on desktop
   });
 
@@ -51,7 +51,7 @@ test.describe('help assistant', () => {
   test('signed-in students see only their own courses; guests are asked to sign in', async ({ page }) => {
     await page.goto('/'); await open(page); await ask(page, 'show my courses');
     await expect(page.getByRole('log')).toContainText('sign in first');
-    await signIn(page, 'student@demo.test');
+    await signIn(page, 'student@academy.test');
     await page.evaluate(() => sessionStorage.clear());
     await page.reload(); await open(page); await ask(page, 'show my courses');
     await expect(page.getByRole('log')).toContainText(/most recent courses|not enrolled/);

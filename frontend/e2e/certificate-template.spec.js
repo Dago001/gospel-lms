@@ -3,7 +3,7 @@ import { signIn } from './helpers.js';
 
 test.describe('certificate template (admin)', () => {
   test('upload artwork, reject a bad file, adjust the layout, preview the PDF', async ({ page }) => {
-    await signIn(page, 'admin@demo.test', undefined, { mfa: true });
+    await signIn(page, 'admin@academy.test', undefined, { mfa: true });
     await page.goto('/admin/certificates');
     await page.getByRole('tab', { name: 'Template & layout' }).click();
     await expect(page.getByText('No template uploaded yet')).toBeVisible();
@@ -43,7 +43,7 @@ test.describe('certificate template (admin)', () => {
   });
 
   test('students and lecturers cannot reach the template tools', async ({ page }) => {
-    await signIn(page, 'student@demo.test');
+    await signIn(page, 'student@academy.test');
     const r = await page.request.get('/api/v1/admin/certificate-template', { headers: { referer: page.url() } });
     expect(r.status()).toBe(403);
     await page.goto('/admin/certificates');

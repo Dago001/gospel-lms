@@ -14,22 +14,22 @@ async function audit(page, label) {
 }
 
 test.describe('accessibility: public pages', () => {
-  for (const path of ['/', '/courses', '/courses/demo-introduction-to-the-gospels', '/login', '/register', '/contact', '/faq', '/pricing', '/verify']) {
+  for (const path of ['/', '/courses', '/courses/introduction-to-the-gospels', '/login', '/register', '/contact', '/faq', '/pricing', '/verify']) {
     test(`axe ${path}`, async ({ page }) => { await page.goto(path); await audit(page, path); });
   }
 });
 
 test.describe('accessibility: signed-in pages', () => {
   test('student', async ({ page }) => {
-    await signIn(page, 'student@demo.test');
+    await signIn(page, 'student@academy.test');
     for (const path of ['/student', '/student/courses', '/student/billing', '/account']) { await page.goto(path); await audit(page, path); }
   });
   test('lecturer', async ({ page }) => {
-    await signIn(page, 'lecturer@demo.test');
+    await signIn(page, 'lecturer@academy.test');
     for (const path of ['/lecturer', '/lecturer/courses']) { await page.goto(path); await audit(page, path); }
   });
   test('admin', async ({ page }) => {
-    await signIn(page, 'admin@demo.test', undefined, { mfa: true });
+    await signIn(page, 'admin@academy.test', undefined, { mfa: true });
     for (const path of ['/admin', '/admin/users', '/admin/finance']) { await page.goto(path); await audit(page, path); }
   });
 });

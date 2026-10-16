@@ -1,6 +1,6 @@
 <?php
 // Router for PHP's built-in web server: serves the built React site and the Laravel API from one address (http://localhost:8000).
-// Used only for local demos: `php -S localhost:8000 -t public local-router.php`
+// Used only for local use: `php -S localhost:8000 -t public local-router.php`
 $path = rawurldecode(parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH) ?: '/');
 $public = __DIR__.'/backend/public';
 

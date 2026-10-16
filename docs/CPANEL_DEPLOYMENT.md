@@ -36,7 +36,7 @@ php artisan db:seed --class=RolesAndPermissionsSeeder --force
 php artisan gospel:create-admin          # follow the prompts; this is your administrator
 php artisan optimize
 ```
-Never run `DemoSeeder` or `E2eSeeder` here. If `migrate` fails on `pg_trgm`, ask the host to run `CREATE EXTENSION pg_trgm;` in your database (or enable it from phpPgAdmin as the database owner).
+Never run `StarterSeeder` or `SampleDataSeeder` here. If `migrate` fails on `pg_trgm`, ask the host to run `CREATE EXTENSION pg_trgm;` in your database (or enable it from phpPgAdmin as the database owner).
 
 ## 6. Scheduled tasks (cPanel → **Cron Jobs**, add two, "Once Per Minute" `* * * * *`)
 ```
@@ -67,7 +67,7 @@ Upload a new zip, extract over the old folder (keep `.env` and `storage/`), then
 cPanel → **Backup** (or JetBackup) covers files; for the database also use cPanel's PostgreSQL backup or `php artisan gospel:backup` (needs `pg_dump`, set `PG_DUMP_BIN` if it is not on the path). Download a copy off the server.
 
 ## Limits of shared hosting
-Fine for a demo or a small pilot. Exams/queues run once per minute (not instantly); uploaded files live on the server disk (no S3); there is no Redis. For a larger launch use a VPS and follow `docs/DEPLOYMENT.md`.
+Fine for a trial or a small pilot. Exams/queues run once per minute (not instantly); uploaded files live on the server disk (no S3); there is no Redis. For a larger launch use a VPS and follow `docs/DEPLOYMENT.md`.
 
 ## What was verified, and what was not
 Verified by the author: the zip builds; extracted with production vendor (no dev packages) under PHP 8.3, it migrated a fresh PostgreSQL database, seeded roles, served `/up` and the public API with `APP_ENV=production`, and ran the scheduler and queue worker. **Not verified:** PHP 8.4 (the automated tests ran on 8.3; the code uses no 8.4-specific features and dependencies support 8.4, but run `php artisan test` or at least the setup steps and the checks in section 7 on your server), Apache `.htaccess` behaviour on your host, cPanel cron timing, AutoSSL, and mail delivery.

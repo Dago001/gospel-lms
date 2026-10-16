@@ -34,7 +34,7 @@
 
 - [ ] Independent penetration test / security review of the staging deployment
 - [ ] `composer audit` and `npm audit` clean or exceptions justified (CI runs both)
-- [ ] `APP_DEBUG=false`, `APP_ENV=production`; no demo/E2E seeders run
+- [ ] `APP_DEBUG=false`, `APP_ENV=production`; no starter/E2E seeders run
 - [ ] TLS A-grade, HSTS preloaded decision made, HTTP→HTTPS redirect verified
 - [ ] First admin has TOTP + recovery codes stored offline
 - [ ] DB user least-privilege; DB and Redis not reachable from the internet

@@ -17,7 +17,7 @@ export default defineConfig({
   reporter: [['list']],
   use: { baseURL: 'http://localhost:5174', launchOptions: { ...(process.env.E2E_CHROMIUM_PATH ? { executablePath: process.env.E2E_CHROMIUM_PATH } : {}), args: ['--no-sandbox'] }, trace: 'retain-on-failure', screenshot: 'only-on-failure' },
   webServer: [
-    { command: 'php -S 127.0.0.1:9099 ../scripts/local-demo/fake-paystack.php', port: 9099, reuseExistingServer: true },
+    { command: 'php -S 127.0.0.1:9099 ../scripts/local/fake-paystack.php', port: 9099, reuseExistingServer: true },
     { command: 'php -S 127.0.0.1:8001 -t public public/index.php', cwd: '../backend', port: 8001, env: { ...dbEnv, PHP_CLI_SERVER_WORKERS: '4' }, reuseExistingServer: false, timeout: 30_000 },
     { command: 'npx vite --port 5174 --strictPort', port: 5174, env: { VITE_API_TARGET: 'http://127.0.0.1:8001' }, reuseExistingServer: false, timeout: 30_000 },
   ],

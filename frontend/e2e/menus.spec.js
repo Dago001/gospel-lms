@@ -31,25 +31,25 @@ async function walk(page, label) {
 }
 
 test('student sidebar: every menu works', async ({ page }) => {
-  await signIn(page, 'student@demo.test');
+  await signIn(page, 'student@academy.test');
   const seen = await walk(page, 'student');
   expect(seen).toEqual(expect.arrayContaining(['Dashboard', 'My courses', 'Results', 'Certificates', 'Payments & receipts', 'Notifications', 'Support']));
 });
 
 test('lecturer sidebar: every menu works', async ({ page }) => {
-  await signIn(page, 'lecturer@demo.test');
+  await signIn(page, 'lecturer@academy.test');
   const seen = await walk(page, 'lecturer');
   expect(seen).toEqual(expect.arrayContaining(['Dashboard', 'My courses']));
 });
 
 test('administrator sidebar: every menu works and nothing is missing', async ({ page }) => {
-  await signIn(page, 'admin@demo.test', undefined, { mfa: true });
+  await signIn(page, 'admin@academy.test', undefined, { mfa: true });
   const seen = await walk(page, 'admin');
   expect(seen).toEqual(expect.arrayContaining(['Dashboard', 'Users', 'Roles & permissions', 'Enrolments', 'Courses', 'Categories', 'Certificates', 'Payments', 'Orders', 'Refunds', 'Coupons', 'Support desk', 'Audit log']));
 });
 
 test('finance sidebar: every menu works', async ({ page }) => {
-  await signIn(page, 'finance@demo.test', undefined, { mfa: true });
+  await signIn(page, 'finance@academy.test', undefined, { mfa: true });
   const seen = await walk(page, 'finance');
   expect(seen).toEqual(expect.arrayContaining(['Payments', 'Orders', 'Refunds']));
 });

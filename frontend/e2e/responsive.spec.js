@@ -7,7 +7,7 @@ for (const [name, width] of Object.entries(WIDTHS)) {
   test.describe(`${name} (${width}px)`, () => {
     test.use({ viewport: { width, height: 900 } });
 
-    for (const path of ['/', '/courses', '/courses/demo-introduction-to-the-gospels', '/login', '/register', '/contact', '/faq', '/pricing']) {
+    for (const path of ['/', '/courses', '/courses/introduction-to-the-gospels', '/login', '/register', '/contact', '/faq', '/pricing']) {
       test(`no horizontal overflow on ${path}`, async ({ page }) => {
         await page.goto(path);
         await page.waitForLoadState('networkidle');
@@ -17,7 +17,7 @@ for (const [name, width] of Object.entries(WIDTHS)) {
     }
 
     test('student portal fits the screen', async ({ page }) => {
-      await signIn(page, 'student@demo.test');
+      await signIn(page, 'student@academy.test');
       for (const p of ['/student', '/student/courses', '/student/billing', '/student/results', '/account']) {
         await page.goto(p);
         await page.waitForLoadState('networkidle');
@@ -41,7 +41,7 @@ test.describe('mobile navigation', () => {
   });
 
   test('student sidebar becomes a drawer on a phone', async ({ page }) => {
-    await signIn(page, 'student@demo.test');
+    await signIn(page, 'student@academy.test');
     await expect(page.getByRole('link', { name: 'Payments & receipts' })).not.toBeInViewport();
     await page.getByRole('button', { name: 'Open navigation' }).click();
     await expect(page.getByRole('link', { name: 'Payments & receipts' })).toBeInViewport();

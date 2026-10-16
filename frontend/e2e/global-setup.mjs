@@ -8,5 +8,5 @@ export default async function globalSetup() {
   const create = process.env.E2E_CREATE_DB_CMD || `su postgres -c "psql -c \\"CREATE DATABASE gospel_lms_e2e OWNER gospel\\""`;
   try { sh(create); } catch { /* already exists */ }
   sh('php artisan migrate:fresh --force', { cwd: '../backend' });
-  sh('php artisan db:seed --class=Database\\\\Seeders\\\\E2eSeeder --force', { cwd: '../backend' });
+  sh('php artisan db:seed --class=Database\\\\Seeders\\\\SampleDataSeeder --force', { cwd: '../backend' });
 }

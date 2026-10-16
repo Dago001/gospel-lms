@@ -2,7 +2,7 @@ import { expect, test } from '@playwright/test';
 import { artisan, signIn } from './helpers.js';
 
 // Every page, at phone widths: nothing may spill past the screen edge, except inside its own horizontal scroller (tables).
-const PUBLIC = ['/', '/courses', '/courses/demo-introduction-to-the-gospels', '/lecturers', '/pricing', '/about', '/faq', '/contact', '/support', '/terms', '/privacy', '/refunds', '/verify', '/login', '/register', '/forgot-password', '/does-not-exist'];
+const PUBLIC = ['/', '/courses', '/courses/introduction-to-the-gospels', '/lecturers', '/pricing', '/about', '/faq', '/contact', '/support', '/terms', '/privacy', '/refunds', '/verify', '/login', '/register', '/forgot-password', '/does-not-exist'];
 const STUDENT = ['/student', '/student/courses', '/student/results', '/student/certificates', '/student/billing', '/student/notifications', '/student/support', '/account'];
 const LECTURER = ['/lecturer', '/lecturer/courses', '/lecturer/notifications'];
 const TABS = ['details', 'curriculum', 'assignments', 'banks', 'assessments', 'live', 'announcements', 'students', 'analytics'];
@@ -36,20 +36,20 @@ for (const width of [360, 390]) {
     test.use({ viewport: { width, height: 780 }, hasTouch: true });
     test('public pages', async ({ page }) => { for (const p of PUBLIC) await check(page, p); });
     test('student portal', async ({ page }) => {
-      await signIn(page, 'student@demo.test');
-      const ids = artisan("$c=App\\Models\\Course::where('slug','demo-introduction-to-the-gospels')->first(); echo 'IDS:'.$c->id.':'.$c->lessons()->orderBy('position')->first()->id;").match(/IDS:([^:]+):(\S+)/);
-      await page.goto('/courses/demo-introduction-to-the-gospels');
+      await signIn(page, 'student@academy.test');
+      const ids = artisan("$c=App\\Models\\Course::where('slug','introduction-to-the-gospels')->first(); echo 'IDS:'.$c->id.':'.$c->lessons()->orderBy('position')->first()->id;").match(/IDS:([^:]+):(\S+)/);
+      await page.goto('/courses/introduction-to-the-gospels');
       const enrol = page.getByRole('button', { name: 'Enrol for free' });
       if (await enrol.count()) await enrol.click();
       for (const p of [...STUDENT, `/student/courses/${ids[1]}`, `/student/courses/${ids[1]}/lessons/${ids[2]}`]) await check(page, p);
     });
     test('lecturer portal', async ({ page }) => {
-      await signIn(page, 'lecturer@demo.test');
-      const id = artisan("echo 'ID:'.App\\Models\\Course::where('slug','demo-introduction-to-the-gospels')->value('id');").match(/ID:(\S+)/)[1];
+      await signIn(page, 'lecturer@academy.test');
+      const id = artisan("echo 'ID:'.App\\Models\\Course::where('slug','introduction-to-the-gospels')->value('id');").match(/ID:(\S+)/)[1];
       for (const p of [...LECTURER, ...TABS.map((t) => `/lecturer/courses/${id}?tab=${t}`)]) await check(page, p);
     });
     test('admin and finance portal', async ({ page }) => {
-      await signIn(page, 'admin@demo.test', undefined, { mfa: true });
+      await signIn(page, 'admin@academy.test', undefined, { mfa: true });
       for (const p of ADMIN) await check(page, p);
     });
   });

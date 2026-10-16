@@ -10,11 +10,11 @@ An independent online Christian academy platform for Nigeria: courses, protected
 ```bash
 cd backend && composer install && cp .env.example .env && php artisan key:generate
 createdb gospel_lms && createdb gospel_lms_test        # adjust DB_* in .env
-php artisan migrate && php artisan db:seed --class=DemoSeeder   # LOCAL ONLY: demo users, password Password-12345
+php artisan migrate && php artisan db:seed --class=StarterSeeder   # LOCAL ONLY: sample users, password Password-12345
 php artisan serve                                        # API on :8000
 cd ../frontend && npm install && npm run dev             # SPA on :5173, proxies /api to :8000
 ```
-Demo accounts (local only): `student@`, `lecturer@`, `admin@`, `finance@demo.test`. Admin/finance must enrol TOTP at first sign-in. Windows: `docs/LOCAL_SETUP_WINDOWS.md`.
+Sample accounts (local only): `student@`, `lecturer@`, `admin@`, `finance@academy.test`. Admin/finance must enrol TOTP at first sign-in. Windows: `docs/LOCAL_SETUP_WINDOWS.md`.
 
 ## Tests
 ```bash

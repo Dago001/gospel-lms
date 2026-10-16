@@ -32,7 +32,7 @@ composer install --no-dev --optimize-autoloader
 cp .env.example .env && php artisan key:generate
 # edit .env (see §4), then:
 php artisan migrate --force
-php artisan db:seed --class=RolesAndPermissionsSeeder --force     # roles & permissions only. NEVER run DemoSeeder / E2eSeeder in production.
+php artisan db:seed --class=RolesAndPermissionsSeeder --force     # roles & permissions only. NEVER run StarterSeeder / SampleDataSeeder in production.
 php artisan gospel:create-admin                                    # prompts; the first admin must enrol TOTP at first sign-in
 php artisan config:cache && php artisan route:cache && php artisan event:cache && php artisan view:cache
 php artisan storage:link
