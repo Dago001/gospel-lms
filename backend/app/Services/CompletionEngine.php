@@ -181,7 +181,7 @@ class CompletionEngine
     {
         $newlyEligible = false;
         $check = DB::transaction(function () use ($user, $course, $trigger, &$newlyEligible) {
-            DB::select('select pg_advisory_xact_lock(hashtext(?))', ['cmp'.$course->id.$user->id]);
+            \App\Support\DbCompat::lockFor('cmp'.$course->id.$user->id, $user->id);
             $check = CourseCompletionCheck::firstOrNew(['user_id' => $user->id, 'course_id' => $course->id]);
             $was = $check->exists ? $check->eligible : null;
             $r = $this->evaluate($user, $course, $check->exists ? $check : null);

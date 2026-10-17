@@ -26,7 +26,7 @@ class UserController extends Controller
         $r = $request->validate(['q' => ['nullable', 'string', 'max:100'], 'role' => ['nullable', Rule::in(Roles::ALL)],
             'status' => ['nullable', Rule::in(['active', 'suspended'])], 'per_page' => ['nullable', 'integer', 'min:1', 'max:100']]);
         $users = User::query()->with('roles')
-            ->when($r['q'] ?? null, fn ($q, $s) => $q->where(fn ($w) => $w->where('name', 'ilike', "%$s%")->orWhere('email', 'ilike', "%$s%")))
+            ->when($r['q'] ?? null, fn ($q, $s) => $q->where(fn ($w) => $w->where('name', \App\Support\DbCompat::like(), "%$s%")->orWhere('email', \App\Support\DbCompat::like(), "%$s%")))
             ->when($r['role'] ?? null, fn ($q, $role) => $q->whereHas('roles', fn ($w) => $w->where('slug', $role)))
             ->when($r['status'] ?? null, fn ($q, $s) => $q->where('status', $s))
             ->orderBy('created_at', 'desc')->paginate($r['per_page'] ?? 25);

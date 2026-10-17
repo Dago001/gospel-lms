@@ -26,7 +26,7 @@ class AssessmentService
         $this->assertEligible($user, $a);
 
         return DB::transaction(function () use ($user, $a) {
-            DB::select('select pg_advisory_xact_lock(hashtext(?))', ['asmt'.$a->id.$user->id]);
+            \App\Support\DbCompat::lockFor('asmt'.$a->id.$user->id, $user->id);
             $live = AssessmentAttempt::where(['assessment_id' => $a->id, 'user_id' => $user->id, 'status' => 'in_progress'])->first();
             if ($live) {
                 if (! $this->expired($live)) {

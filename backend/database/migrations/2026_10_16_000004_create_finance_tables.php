@@ -24,7 +24,11 @@ return new class extends Migration
             $t->foreignUuid('created_by')->nullable()->constrained('users')->nullOnDelete();
             $t->timestamps();
         });
-        DB::statement('CREATE UNIQUE INDEX coupons_code_unique ON coupons (lower(code))');
+        if (\App\Support\DbCompat::mysql()) {
+            DB::statement('CREATE UNIQUE INDEX coupons_code_unique ON coupons (code)');   // the default collation is case-insensitive
+        } else {
+            DB::statement('CREATE UNIQUE INDEX coupons_code_unique ON coupons (lower(code))');
+        }
         DB::statement("ALTER TABLE coupons ADD CONSTRAINT coupons_type_valid CHECK (type IN ('percent','fixed'))");
         DB::statement("ALTER TABLE coupons ADD CONSTRAINT coupons_value_valid CHECK (value > 0 AND (type <> 'percent' OR value <= 100))");
 
@@ -83,10 +87,10 @@ return new class extends Migration
             $t->index(['status', 'created_at']);
         });
         // Duplicate processing guard: one provider transaction can settle at most one payment.
-        DB::statement('CREATE UNIQUE INDEX payments_provider_txn_unique ON payments (provider, provider_transaction_id) WHERE provider_transaction_id IS NOT NULL');
+        \App\Support\DbCompat::partialUnique('payments', 'payments_provider_txn_unique', ['provider', 'provider_transaction_id'], 'provider_transaction_id IS NOT NULL');
         DB::statement("ALTER TABLE payments ADD CONSTRAINT payments_status_valid CHECK (status IN ('initialized','success','failed','abandoned','mismatch','free'))");
         // At most one successful payment per order.
-        DB::statement("CREATE UNIQUE INDEX payments_one_success_per_order ON payments (order_id) WHERE status IN ('success','free')");
+        \App\Support\DbCompat::partialUnique('payments', 'payments_one_success_per_order', ['order_id'], "status IN ('success','free')");
 
         Schema::create('payment_webhook_events', function (Blueprint $t) {
             $t->uuid('id')->primary();

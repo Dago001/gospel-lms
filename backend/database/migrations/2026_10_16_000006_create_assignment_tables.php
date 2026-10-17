@@ -111,17 +111,12 @@ return new class extends Migration
             $t->foreignUuid('changed_by')->nullable()->constrained('users')->nullOnDelete();
             $t->timestamp('created_at')->useCurrent();
         });
-        DB::unprepared(<<<'SQL'
-CREATE OR REPLACE FUNCTION grade_change_logs_immutable() RETURNS trigger AS $$
-BEGIN RAISE EXCEPTION 'grade_change_logs is append-only'; END; $$ LANGUAGE plpgsql;
-CREATE TRIGGER grade_change_logs_no_change BEFORE UPDATE OR DELETE ON grade_change_logs
-FOR EACH ROW EXECUTE FUNCTION grade_change_logs_immutable();
-SQL);
+        \App\Support\DbCompat::appendOnly('grade_change_logs');
     }
 
     public function down(): void
     {
-        DB::unprepared('DROP TRIGGER IF EXISTS grade_change_logs_no_change ON grade_change_logs; DROP FUNCTION IF EXISTS grade_change_logs_immutable();');
+        \App\Support\DbCompat::dropAppendOnly('grade_change_logs');
         foreach (['grade_change_logs','submission_grades','submission_files','assignment_submissions','assignments','rubric_criteria','grading_rubrics'] as $t) {
             Schema::dropIfExists($t);
         }

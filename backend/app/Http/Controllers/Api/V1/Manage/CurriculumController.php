@@ -174,13 +174,18 @@ class CurriculumController extends Controller
         }
     }
 
-    /** Replace sibling ordering atomically; the unique(position) constraint is deferred to commit. */
+    /** Replace sibling ordering atomically; positions are parked first so the unique constraint is never violated mid-update. */
     private function reorder(array $current, array $requested, string $table): void
     {
         if (count($requested) !== count($current) || array_diff($requested, $current) || array_diff($current, $requested)) {
             throw new DomainException('The order must list every item exactly once.', 'invalid_order');
         }
         DB::transaction(function () use ($requested, $table) {
+            // Two passes: park every item at a high temporary position first, so the unique(position) check never sees a clash
+            // mid-update. (PostgreSQL could defer the check to commit; MySQL cannot.)
+            foreach ($requested as $i => $id) {
+                DB::table($table)->where('id', $id)->update(['position' => 1000000 + $i]);
+            }
             foreach ($requested as $i => $id) {
                 DB::table($table)->where('id', $id)->update(['position' => $i + 1, 'updated_at' => now()]);
             }

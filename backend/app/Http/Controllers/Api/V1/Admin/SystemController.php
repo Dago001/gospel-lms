@@ -100,6 +100,13 @@ class SystemController extends Controller
         $lastRestore = BackupAuditRecord::where(['type' => 'restore_test', 'status' => 'ok'])->latest('started_at')->first();
         $checks['backups'] = ['ok' => (bool) ($lastBackup && $lastBackup->started_at->gt(now()->subHours(26))), 'last_backup' => $lastBackup?->started_at->toIso8601String(), 'last_restore_test' => $lastRestore?->started_at->toIso8601String()];
 
+        try {
+            $prot = \App\Support\DbCompat::appendOnlyActive();
+            $checks['log_protection'] = ['ok' => ! in_array(false, $prot, true), 'tables' => $prot];
+        } catch (\Throwable) {
+            $checks['log_protection'] = ['ok' => false];
+        }
+
         $status = collect($checks)->every(fn ($c) => $c['ok']) ? 'ok' : (($checks['database']['ok'] ?? false) ? 'degraded' : 'down');
 
         return response()->json(['data' => ['status' => $status, 'checks' => $checks, 'checked_at' => now()->toIso8601String()]], $status === 'down' ? 503 : 200);

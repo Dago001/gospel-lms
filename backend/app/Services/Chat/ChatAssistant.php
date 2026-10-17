@@ -183,7 +183,7 @@ class ChatAssistant
         }
         foreach ($tokens as $t) {
             $like = '%'.addcslashes($t, '%_\\').'%';
-            $q->where(fn ($w) => $w->where('title', 'ilike', $like)->orWhere('summary', 'ilike', $like)->orWhereHas('category', fn ($c) => $c->where('name', 'ilike', $like)));
+            $q->where(fn ($w) => $w->where('title', \App\Support\DbCompat::like(), $like)->orWhere('summary', \App\Support\DbCompat::like(), $like)->orWhereHas('category', fn ($c) => $c->where('name', \App\Support\DbCompat::like(), $like)));
         }
         $courses = $q->orderByDesc('published_at')->limit(5)->get();
         if ($courses->isEmpty()) {

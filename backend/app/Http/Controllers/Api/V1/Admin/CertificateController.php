@@ -19,7 +19,7 @@ class CertificateController extends Controller
     public function index(Request $request): JsonResponse
     {
         $f = $request->validate(['q' => ['nullable', 'string', 'max:80'], 'status' => ['nullable', 'in:active,revoked']]);
-        $p = Certificate::with('revocations')->when($f['q'] ?? null, fn ($q, $v) => $q->where(fn ($w) => $w->where('number', 'ilike', '%'.addcslashes($v, '%_\\').'%')->orWhere('holder_name', 'ilike', '%'.addcslashes($v, '%_\\').'%')))
+        $p = Certificate::with('revocations')->when($f['q'] ?? null, fn ($q, $v) => $q->where(fn ($w) => $w->where('number', \App\Support\DbCompat::like(), '%'.addcslashes($v, '%_\\').'%')->orWhere('holder_name', \App\Support\DbCompat::like(), '%'.addcslashes($v, '%_\\').'%')))
             ->when($f['status'] ?? null, fn ($q, $v) => $q->where('status', $v))->latest('issued_at')->paginate(25);
 
         return response()->json(['data' => $p->getCollection()->map(fn ($c) => $this->row($c))->values(), 'meta' => ['current_page' => $p->currentPage(), 'last_page' => $p->lastPage(), 'total' => $p->total()]]);

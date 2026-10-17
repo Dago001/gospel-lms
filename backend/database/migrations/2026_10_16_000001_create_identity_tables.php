@@ -98,12 +98,7 @@ return new class extends Migration
             $t->index(['subject_type', 'subject_id']);
         });
         // Audit logs are append-only: block UPDATE and DELETE at the database level.
-        DB::unprepared(<<<'SQL'
-CREATE OR REPLACE FUNCTION audit_logs_immutable() RETURNS trigger AS $$
-BEGIN RAISE EXCEPTION 'audit_logs is append-only'; END; $$ LANGUAGE plpgsql;
-CREATE TRIGGER audit_logs_no_change BEFORE UPDATE OR DELETE ON audit_logs
-FOR EACH ROW EXECUTE FUNCTION audit_logs_immutable();
-SQL);
+        \App\Support\DbCompat::appendOnly('audit_logs');
 
         Schema::create('consent_records', function (Blueprint $t) {
             $t->uuid('id')->primary();
@@ -119,7 +114,7 @@ SQL);
 
     public function down(): void
     {
-        DB::unprepared('DROP TRIGGER IF EXISTS audit_logs_no_change ON audit_logs; DROP FUNCTION IF EXISTS audit_logs_immutable();');
+        \App\Support\DbCompat::dropAppendOnly('audit_logs');
         foreach (['consent_records','audit_logs','two_factor_authentications','user_sessions','user_profiles','permission_role','role_user','permissions','roles'] as $tbl) {
             Schema::dropIfExists($tbl);
         }

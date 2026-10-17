@@ -9,6 +9,9 @@ class LessonProgress extends Model
 {
     use HasUuids;
 
+    /** JSON columns have no database default on MySQL, so the empty-array default lives here. */
+    protected $attributes = ['covered_ranges' => '[]'];
+
     protected $table = 'lesson_progress';
 
     protected $guarded = ['id'];

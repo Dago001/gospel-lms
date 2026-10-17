@@ -16,7 +16,7 @@ class ReportService
         $q = DB::table('course_enrollments')->whereBetween('enrolled_at', [$from, $to.' 23:59:59'])->when($courseId, fn ($q) => $q->where('course_id', $courseId));
 
         return [
-            'daily' => (clone $q)->select(DB::raw("date(enrolled_at at time zone 'Africa/Lagos') as day"), 'source', DB::raw('count(*) as count'))->groupBy('day', 'source')->orderBy('day')->get(),
+            'daily' => (clone $q)->select(DB::raw(\App\Support\DbCompat::lagosDay('enrolled_at') . ' as day'), 'source', DB::raw('count(*) as count'))->groupBy('day', 'source')->orderBy('day')->get(),
             'by_course' => (clone $q)->join('courses', 'courses.id', '=', 'course_enrollments.course_id')->select('courses.title', DB::raw('count(*) as count'))->groupBy('courses.title')->orderByDesc('count')->get(),
         ];
     }
@@ -25,7 +25,7 @@ class ReportService
     {
         return DB::table('courses')->leftJoin('course_enrollments as e', fn ($j) => $j->on('e.course_id', '=', 'courses.id')->whereIn('e.status', ['active', 'completed']))
             ->where('courses.status', '!=', 'draft')->whereNull('courses.deleted_at')->when($courseId, fn ($q) => $q->where('courses.id', $courseId))
-            ->select('courses.id', 'courses.title', DB::raw('count(e.id) as enrolled'), DB::raw("count(e.id) filter (where e.status = 'completed') as completed"))
+            ->select('courses.id', 'courses.title', DB::raw('count(e.id) as enrolled'), DB::raw(\App\Support\DbCompat::countWhere("e.status = 'completed'") . ' as completed'))
             ->groupBy('courses.id', 'courses.title')->orderBy('courses.title')->get()
             ->map(fn ($r) => (array) $r + ['completion_rate' => $r->enrolled ? round($r->completed / $r->enrolled * 100, 1) : null]);
     }
@@ -34,7 +34,7 @@ class ReportService
     {
         return DB::table('assessments as a')->join('courses', 'courses.id', '=', 'a.course_id')->leftJoin('assessment_attempts as t', fn ($j) => $j->on('t.assessment_id', '=', 'a.id')->whereNotNull('t.results_published_at'))
             ->where('a.status', 'published')->when($courseId, fn ($q) => $q->where('a.course_id', $courseId))
-            ->select('a.id', 'a.title', 'a.kind', 'courses.title as course', DB::raw('count(t.id) as attempts'), DB::raw('count(t.id) filter (where t.passed) as passed'), DB::raw('round(avg(t.percent)::numeric, 1) as average_percent'))
+            ->select('a.id', 'a.title', 'a.kind', 'courses.title as course', DB::raw('count(t.id) as attempts'), DB::raw(\App\Support\DbCompat::countWhere('t.passed') . ' as passed'), DB::raw('round(avg(t.percent), 1) as average_percent'))
             ->groupBy('a.id', 'a.title', 'a.kind', 'courses.title')->orderBy('courses.title')->orderBy('a.title')->get()
             ->map(fn ($r) => (array) $r + ['pass_rate' => $r->attempts ? round($r->passed / $r->attempts * 100, 1) : null]);
     }
@@ -54,7 +54,7 @@ class ReportService
     public function attendance(?string $courseId = null): Collection
     {
         return DB::table('live_sessions as s')->join('courses', 'courses.id', '=', 's.course_id')->where('s.status', '!=', 'cancelled')->where('s.counts_for_attendance', true)
-            ->whereRaw("s.starts_at + (s.duration_minutes || ' minutes')::interval < now()")->when($courseId, fn ($q) => $q->where('s.course_id', $courseId))
+            ->whereRaw(\App\Support\DbCompat::addMinutes('s.starts_at', 's.duration_minutes') . ' < now()')->when($courseId, fn ($q) => $q->where('s.course_id', $courseId))
             ->select('s.id', 's.title', 'courses.title as course', 's.starts_at',
                 DB::raw("(select count(*) from course_enrollments e where e.course_id = s.course_id and e.status in ('active','completed')) as enrolled"),
                 DB::raw('(select count(*) from live_session_attendance a where a.live_session_id = s.id and a.present) as present'))
@@ -64,7 +64,7 @@ class ReportService
     public function certificates(string $from, string $to): Collection
     {
         return DB::table('certificates')->whereBetween('issued_at', [$from, $to.' 23:59:59'])
-            ->select(DB::raw("to_char(issued_at at time zone 'Africa/Lagos', 'YYYY-MM') as month"), DB::raw("count(*) filter (where status = 'active') as active"), DB::raw("count(*) filter (where status = 'revoked') as revoked"))
+            ->select(DB::raw(\App\Support\DbCompat::lagosMonth('issued_at') . ' as month'), DB::raw(\App\Support\DbCompat::countWhere("status = 'active'") . ' as active'), DB::raw(\App\Support\DbCompat::countWhere("status = 'revoked'") . ' as revoked'))
             ->groupBy('month')->orderBy('month')->get();
     }
 

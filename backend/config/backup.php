@@ -6,5 +6,7 @@ return [
     'upload' => (bool) env('BACKUP_UPLOAD', false),     // also copy to the private object-storage disk under backups/
     'pg_dump' => env('PG_DUMP_BIN', 'pg_dump'),
     'pg_restore' => env('PG_RESTORE_BIN', 'pg_restore'),
+    'mysqldump' => env('MYSQLDUMP_BIN', 'mysqldump'),
+    'mysql' => env('MYSQL_BIN', 'mysql'),
     'tables_checked' => ['users', 'courses', 'course_enrollments', 'orders', 'payments', 'receipts', 'certificates', 'assessment_attempts', 'submission_grades', 'audit_logs'],
 ];

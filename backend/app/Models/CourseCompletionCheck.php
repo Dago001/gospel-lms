@@ -9,6 +9,9 @@ class CourseCompletionCheck extends Model
 {
     use HasUuids;
 
+    /** JSON columns have no database default on MySQL, so the empty-array default lives here. */
+    protected $attributes = ['reasons' => '[]', 'components' => '[]'];
+
     protected $guarded = ['id'];
 
     protected function casts(): array

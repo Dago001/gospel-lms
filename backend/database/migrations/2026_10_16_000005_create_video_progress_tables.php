@@ -53,7 +53,7 @@ return new class extends Migration
             $t->foreignUuid('lesson_id')->constrained()->cascadeOnDelete();
             $t->foreignUuid('course_id')->constrained()->cascadeOnDelete();
             $t->string('status', 12)->default('in_progress');  // in_progress | completed
-            $t->jsonb('covered_ranges')->default('[]');        // merged [start,end] seconds of verified playback
+            \App\Support\DbCompat::jsonDefault($t->jsonb('covered_ranges'));        // merged [start,end] seconds of verified playback
             $t->double('covered_seconds')->default(0);
             $t->double('last_position_seconds')->default(0);
             $t->decimal('percent', 5, 2)->default(0);

@@ -69,7 +69,7 @@ class DashboardController extends Controller
         $u = $request->user();
         $courses = Course::query()->unless($u->hasPermission('courses.manage-all'), fn ($q) => $q->whereHas('instructors', fn ($w) => $w->where('users.id', $u->id)))->whereNotIn('status', ['archived'])->orderBy('title')->get(['id', 'title', 'status']);
         $ids = $courses->pluck('id');
-        $enrol = CourseEnrollment::whereIn('course_id', $ids)->select('course_id', DB::raw("count(*) filter (where status = 'active') as active"), DB::raw("count(*) filter (where status = 'completed') as completed"))->groupBy('course_id')->get()->keyBy('course_id');
+        $enrol = CourseEnrollment::whereIn('course_id', $ids)->select('course_id', DB::raw(\App\Support\DbCompat::countWhere("status = 'active'") . ' as active'), DB::raw(\App\Support\DbCompat::countWhere("status = 'completed'") . ' as completed'))->groupBy('course_id')->get()->keyBy('course_id');
         $queue = app(ReportService::class)->gradingQueue()->whereIn('id', $ids)->keyBy('id');
 
         return response()->json(['data' => [

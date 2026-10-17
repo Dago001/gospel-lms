@@ -60,7 +60,7 @@ class AssignmentService
         }
 
         return DB::transaction(function () use ($user, $a, $text, $files, $now, $late, $lateMinutes) {
-            DB::select('select pg_advisory_xact_lock(hashtext(?))', [$a->id.$user->id]);   // serialise this learner's submissions to this assignment
+            \App\Support\DbCompat::lockFor($a->id.$user->id, $user->id);   // serialise this learner's submissions to this assignment
             $last = AssignmentSubmission::where(['assignment_id' => $a->id, 'user_id' => $user->id])->orderByDesc('attempt')->first();
             if ($last) {
                 if (! $a->allow_resubmission && $last->status !== 'returned') {

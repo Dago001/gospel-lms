@@ -39,7 +39,7 @@ class FinanceController extends Controller
 
         return Payment::query()->with('order.user:id,name,email')
             ->when($f['status'] ?? null, fn ($q, $v) => $q->where('status', $v))
-            ->when($f['q'] ?? null, fn ($q, $v) => $q->where(fn ($w) => $w->where('reference', 'ilike', '%'.addcslashes($v, '%_\\').'%')->orWhereHas('order', fn ($o) => $o->where('number', 'ilike', '%'.addcslashes($v, '%_\\').'%'))))
+            ->when($f['q'] ?? null, fn ($q, $v) => $q->where(fn ($w) => $w->where('reference', \App\Support\DbCompat::like(), '%'.addcslashes($v, '%_\\').'%')->orWhereHas('order', fn ($o) => $o->where('number', \App\Support\DbCompat::like(), '%'.addcslashes($v, '%_\\').'%'))))
             ->when($f['from'] ?? null, fn ($q, $v) => $q->where('created_at', '>=', $v))->when($f['to'] ?? null, fn ($q, $v) => $q->where('created_at', '<=', $v.' 23:59:59'))
             ->latest();
     }
@@ -119,7 +119,7 @@ class FinanceController extends Controller
         $to = ($r['to'] ?? now()->toDateString()).' 23:59:59';
         $byStatus = Payment::whereBetween('created_at', [$from, $to])->select('status', 'currency', DB::raw('count(*) as count'), DB::raw('coalesce(sum(amount_minor),0) as total_minor'))->groupBy('status', 'currency')->get();
         $refunds = Refund::where('status', 'processed')->whereBetween('processed_at', [$from, $to])->select('currency', DB::raw('count(*) as count'), DB::raw('coalesce(sum(amount_minor),0) as total_minor'))->groupBy('currency')->get();
-        $daily = Payment::whereIn('status', ['success'])->whereBetween('paid_at', [$from, $to])->select(DB::raw("date(paid_at at time zone 'Africa/Lagos') as day"), 'currency', DB::raw('count(*) as count'), DB::raw('sum(amount_minor) as total_minor'))->groupBy('day', 'currency')->orderBy('day')->get();
+        $daily = Payment::whereIn('status', ['success'])->whereBetween('paid_at', [$from, $to])->select(DB::raw(\App\Support\DbCompat::lagosDay('paid_at') . ' as day'), 'currency', DB::raw('count(*) as count'), DB::raw('sum(amount_minor) as total_minor'))->groupBy('day', 'currency')->orderBy('day')->get();
 
         return response()->json(['data' => ['from' => $from, 'to' => substr($to, 0, 10), 'payments_by_status' => $byStatus, 'refunds_processed' => $refunds, 'daily_revenue' => $daily]]);
     }

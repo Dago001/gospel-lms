@@ -37,7 +37,7 @@ class CatalogueController extends Controller
             'sort' => ['nullable', Rule::in(['newest', 'title', 'price_asc', 'price_desc'])], 'per_page' => ['nullable', 'integer', 'between:1,50'],
         ]);
         $q = Course::query()->where('status', 'published')->with(['category', 'instructors.profile'])
-            ->when($f['q'] ?? null, fn ($q, $s) => $q->where(fn ($w) => $w->where('title', 'ilike', '%'.addcslashes($s, '%_\\').'%')->orWhere('summary', 'ilike', '%'.addcslashes($s, '%_\\').'%')))
+            ->when($f['q'] ?? null, fn ($q, $s) => $q->where(fn ($w) => $w->where('title', \App\Support\DbCompat::like(), '%'.addcslashes($s, '%_\\').'%')->orWhere('summary', \App\Support\DbCompat::like(), '%'.addcslashes($s, '%_\\').'%')))
             ->when($f['category'] ?? null, fn ($q, $s) => $q->whereHas('category', fn ($w) => $w->where('slug', $s)))
             ->when($f['level'] ?? null, fn ($q, $s) => $q->where('level', $s))
             ->when($f['price'] ?? null, fn ($q, $s) => $s === 'free' ? $q->where('price_minor', 0) : $q->where('price_minor', '>', 0));

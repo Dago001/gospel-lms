@@ -21,7 +21,7 @@ export function System() {
   );
 }
 
-const LABEL = { database: 'Database', cache: 'Cache', storage: 'Private file storage', queue: 'Background queue', scheduler: 'Scheduled tasks', backups: 'Backups' };
+const LABEL = { log_protection: 'Tamper-proof logs', database: 'Database', cache: 'Cache', storage: 'Private file storage', queue: 'Background queue', scheduler: 'Scheduled tasks', backups: 'Backups' };
 function Health() {
   const q = useGet(['admin', 'health'], '/admin/health', undefined, { refetchInterval: 30_000, retry: false });
   if (q.isLoading) return <Loading />;

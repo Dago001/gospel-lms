@@ -14,6 +14,9 @@ class Course extends Model
 {
     use HasFactory, HasUuids, SoftDeletes;
 
+    /** JSON columns have no database default on MySQL, so the empty-array default lives here. */
+    protected $attributes = ['objectives' => '[]', 'requirements' => '[]'];
+
     public const EDITABLE_STATUSES = ['draft', 'approved', 'published'];
 
     protected $guarded = ['id', 'slug', 'review_notes', 'scheduled_publish_at', 'status', 'approved_by', 'approved_at', 'published_at', 'archived_at', 'version', 'created_by', 'price_minor', 'currency', 'discount_price_minor', 'discount_starts_at', 'discount_ends_at'];

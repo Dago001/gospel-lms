@@ -58,8 +58,8 @@ return new class extends Migration
             $t->foreignUuid('course_id')->constrained()->cascadeOnDelete();
             $t->boolean('eligible')->default(false);
             $t->decimal('grade_percent', 5, 2)->nullable();
-            $t->jsonb('reasons')->default('[]');                      // why not (empty when eligible)
-            $t->jsonb('components')->default('[]');                   // per-component results used for the decision
+            \App\Support\DbCompat::jsonDefault($t->jsonb('reasons'));                      // why not (empty when eligible)
+            \App\Support\DbCompat::jsonDefault($t->jsonb('components'));                   // per-component results used for the decision
             $t->string('trigger', 40)->nullable();
             $t->foreignUuid('approved_by')->nullable()->constrained('users')->nullOnDelete();
             $t->timestamp('approved_at')->nullable();
@@ -88,7 +88,7 @@ return new class extends Migration
             $t->index(['user_id', 'course_id']);
         });
         // At most one ACTIVE certificate per learner per course, even under concurrent completion requests.
-        DB::statement("CREATE UNIQUE INDEX certificates_one_active ON certificates (user_id, course_id) WHERE status = 'active'");
+        \App\Support\DbCompat::partialUnique('certificates', 'certificates_one_active', ['user_id', 'course_id'], "status = 'active'");
         DB::statement("ALTER TABLE certificates ADD CONSTRAINT certificates_status_valid CHECK (status IN ('active','revoked'))");
 
         Schema::create('certificate_revocations', function (Blueprint $t) {
@@ -99,12 +99,7 @@ return new class extends Migration
             $t->boolean('block_reissue')->default(true);
             $t->timestamp('revoked_at');
         });
-        DB::unprepared(<<<'SQL'
-CREATE OR REPLACE FUNCTION certificate_revocations_immutable() RETURNS trigger AS $$
-BEGIN RAISE EXCEPTION 'certificate_revocations is append-only'; END; $$ LANGUAGE plpgsql;
-CREATE TRIGGER certificate_revocations_no_change BEFORE UPDATE OR DELETE ON certificate_revocations
-FOR EACH ROW EXECUTE FUNCTION certificate_revocations_immutable();
-SQL);
+        \App\Support\DbCompat::appendOnly('certificate_revocations');
 
         Schema::create('certificate_verification_logs', function (Blueprint $t) {
             $t->uuid('id')->primary();
@@ -120,7 +115,7 @@ SQL);
 
     public function down(): void
     {
-        DB::unprepared('DROP TRIGGER IF EXISTS certificate_revocations_no_change ON certificate_revocations; DROP FUNCTION IF EXISTS certificate_revocations_immutable();');
+        \App\Support\DbCompat::dropAppendOnly('certificate_revocations');
         foreach (['certificate_verification_logs','certificate_revocations','certificates','course_completion_checks','live_session_recordings','live_session_attendance','live_sessions'] as $t) {
             Schema::dropIfExists($t);
         }

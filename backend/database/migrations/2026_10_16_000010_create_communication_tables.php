@@ -89,7 +89,10 @@ return new class extends Migration
             $t->timestamps();
             $t->index(['status', 'last_activity_at']);
         });
-        DB::statement('ALTER TABLE support_tickets ADD CONSTRAINT support_requester CHECK (user_id IS NOT NULL OR guest_email IS NOT NULL)');
+        // MySQL refuses a CHECK on a column that has an ON DELETE SET NULL foreign key; the same rule is enforced in SupportController there.
+        if (! \App\Support\DbCompat::mysql()) {
+            DB::statement('ALTER TABLE support_tickets ADD CONSTRAINT support_requester CHECK (user_id IS NOT NULL OR guest_email IS NOT NULL)');
+        }
 
         Schema::create('support_messages', function (Blueprint $t) {
             $t->uuid('id')->primary();

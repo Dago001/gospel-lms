@@ -122,7 +122,7 @@ return new class extends Migration
             $t->index(['status', 'deadline_at']);
         });
         // One live attempt per learner per assessment.
-        DB::statement("CREATE UNIQUE INDEX attempts_one_in_progress ON assessment_attempts (assessment_id, user_id) WHERE status = 'in_progress'");
+        \App\Support\DbCompat::partialUnique('assessment_attempts', 'attempts_one_in_progress', ['assessment_id', 'user_id'], "status = 'in_progress'");
 
         Schema::create('assessment_responses', function (Blueprint $t) {
             $t->uuid('id')->primary();

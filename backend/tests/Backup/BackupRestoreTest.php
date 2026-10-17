@@ -9,7 +9,7 @@ use Illuminate\Support\Facades\DB;
 use Tests\TestCase;
 
 /**
- * Uses the real pg_dump / pg_restore against the PostgreSQL test database. These tests commit data (the dump runs on a
+ * Uses the real pg_dump / pg_restore (PostgreSQL) or mysqldump / mysql (MySQL, MariaDB) against the test database. These tests commit data (the dump runs on a
  * separate connection), so they do not use RefreshDatabase and rebuild the schema afterwards.
  */
 uses(TestCase::class);
@@ -31,6 +31,13 @@ afterEach(function () {
     Artisan::call('migrate:fresh', ['--force' => true]);
 });
 
+function leftoverScratchDatabases(): array
+{
+    return DB::connection()->getDriverName() === 'mysql'
+        ? DB::select("select schema_name as datname from information_schema.schemata where schema_name like 'gospel\\_restore\\_check\\_%'")
+        : DB::select("select datname from pg_database where datname like 'gospel_restore_check_%'");
+}
+
 it('backs up the database with a checksum and row counts', function () {
     $this->artisan('gospel:backup')->assertSuccessful();
     $b = BackupAuditRecord::where('type', 'backup')->firstOrFail();
@@ -45,7 +52,7 @@ it('proves the backup restores: data lands in a scratch database that is then dr
     $r = BackupAuditRecord::where('type', 'restore_test')->firstOrFail();
     expect($r->status)->toBe('ok')->and($r->details['restored_counts']['users'])->toBe(3)->and($r->details['restored_counts']['courses'])->toBe(2)->and($r->details['migrations'])->toBeGreaterThan(5);
     expect(User::count())->toBe(4);                              // live database unchanged
-    $left = DB::select("select datname from pg_database where datname like 'gospel_restore_check_%'");
+    $left = leftoverScratchDatabases();
     expect($left)->toBe([]);                                     // the scratch database was removed
 });
 
@@ -55,7 +62,7 @@ it('detects a corrupted or altered backup file', function () {
     file_put_contents($b->location, 'tampered', FILE_APPEND);
     $this->artisan('gospel:backup-verify')->assertFailed();
     expect(BackupAuditRecord::where('type', 'restore_test')->firstOrFail())->status->toBe('failed')->error->toContain('Checksum mismatch');
-    expect(DB::select("select datname from pg_database where datname like 'gospel_restore_check_%'"))->toBe([]);
+    expect(leftoverScratchDatabases())->toBe([]);
 });
 
 it('fails the restore test if the backup holds less data than existed when it was taken', function () {

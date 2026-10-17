@@ -11,7 +11,7 @@ return new class extends Migration
     {
         // Trigram search indexes are an optimisation only. Some hosts do not ship PostgreSQL's contrib extensions, so skip them there
         // (course search then uses plain ILIKE, which is fast enough for a catalogue of this size).
-        $trigram = DB::selectOne("select 1 as ok from pg_available_extensions where name = 'pg_trgm'") !== null;
+        $trigram = ! \App\Support\DbCompat::mysql() && DB::selectOne("select 1 as ok from pg_available_extensions where name = 'pg_trgm'") !== null;
         if ($trigram) {
             DB::statement('CREATE EXTENSION IF NOT EXISTS pg_trgm');
         }
@@ -32,8 +32,8 @@ return new class extends Migration
             $t->string('title', 200);
             $t->string('summary', 500)->nullable();
             $t->text('description')->nullable();               // sanitised HTML
-            $t->jsonb('objectives')->default('[]');
-            $t->jsonb('requirements')->default('[]');
+            \App\Support\DbCompat::jsonDefault($t->jsonb('objectives'));
+            \App\Support\DbCompat::jsonDefault($t->jsonb('requirements'));
             $t->string('level', 20)->default('beginner');       // beginner | intermediate | advanced
             $t->unsignedInteger('duration_minutes_override')->nullable(); // else derived from lessons
             $t->string('thumbnail_path')->nullable();
@@ -91,7 +91,7 @@ return new class extends Migration
             $t->timestamps();
             $t->index('course_id');
         });
-        DB::statement('ALTER TABLE course_modules ADD CONSTRAINT course_modules_position_unique UNIQUE (course_id, position) DEFERRABLE INITIALLY DEFERRED');
+        DB::statement('ALTER TABLE course_modules ADD CONSTRAINT course_modules_position_unique UNIQUE (course_id, position)'.(\App\Support\DbCompat::mysql() ? '' : ' DEFERRABLE INITIALLY DEFERRED'));
 
         Schema::create('lessons', function (Blueprint $t) {
             $t->uuid('id')->primary();
@@ -111,7 +111,7 @@ return new class extends Migration
             $t->timestamps();
             $t->index(['course_id']);
         });
-        DB::statement('ALTER TABLE lessons ADD CONSTRAINT lessons_position_unique UNIQUE (module_id, position) DEFERRABLE INITIALLY DEFERRED');
+        DB::statement('ALTER TABLE lessons ADD CONSTRAINT lessons_position_unique UNIQUE (module_id, position)'.(\App\Support\DbCompat::mysql() ? '' : ' DEFERRABLE INITIALLY DEFERRED'));
         DB::statement("ALTER TABLE lessons ADD CONSTRAINT lessons_type_valid CHECK (type IN ('text','video','document','live'))");
         DB::statement('ALTER TABLE lessons ADD CONSTRAINT lessons_pct_valid CHECK (required_completion_percent IS NULL OR required_completion_percent BETWEEN 1 AND 100)');
 

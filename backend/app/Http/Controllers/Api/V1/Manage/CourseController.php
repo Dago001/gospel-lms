@@ -30,7 +30,7 @@ class CourseController extends Controller
         $u = $request->user();
         $page = Course::query()->with(['category', 'instructors.profile', 'prerequisites'])
             ->unless($u->hasPermission('courses.manage-all'), fn ($q) => $q->whereHas('instructors', fn ($w) => $w->where('users.id', $u->id)))
-            ->when($f['q'] ?? null, fn ($q, $s) => $q->where('title', 'ilike', '%'.addcslashes($s, '%_\\').'%'))
+            ->when($f['q'] ?? null, fn ($q, $s) => $q->where('title', \App\Support\DbCompat::like(), '%'.addcslashes($s, '%_\\').'%'))
             ->when($f['status'] ?? null, fn ($q, $s) => $q->where('status', $s))
             ->latest('updated_at')->paginate($f['per_page'] ?? 20);
 

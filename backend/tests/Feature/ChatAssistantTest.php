@@ -137,7 +137,7 @@ it('rate limits abusive callers', function () {
 });
 
 it('stores nothing about the conversation', function () {
-    $tables = collect(\Illuminate\Support\Facades\DB::select("select table_name from information_schema.tables where table_schema='public'"))->pluck('table_name');
+    $tables = collect(\Illuminate\Support\Facades\DB::select("select table_name as table_name from information_schema.tables where table_schema = ".(\Illuminate\Support\Facades\DB::connection()->getDriverName() === 'mysql' ? 'database()' : "'public'")))->pluck('table_name');
     expect($tables->filter(fn ($t) => str_contains($t, 'chat')))->toBeEmpty();
     $before = \Illuminate\Support\Facades\DB::table('audit_logs')->count();
     ask($this, 'How do I enrol?')->assertOk();

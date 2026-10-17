@@ -127,7 +127,7 @@ class SupportController extends Controller
     {
         $f = $request->validate(['status' => ['nullable', 'in:open,pending,resolved,closed'], 'q' => ['nullable', 'string', 'max:80'], 'assigned' => ['nullable', 'in:me,none']]);
         $p = SupportTicket::with('user:id,name,email')->when($f['status'] ?? null, fn ($q, $v) => $q->where('status', $v))
-            ->when($f['q'] ?? null, fn ($q, $v) => $q->where(fn ($w) => $w->where('number', 'ilike', '%'.addcslashes($v, '%_\\').'%')->orWhere('subject', 'ilike', '%'.addcslashes($v, '%_\\').'%')))
+            ->when($f['q'] ?? null, fn ($q, $v) => $q->where(fn ($w) => $w->where('number', \App\Support\DbCompat::like(), '%'.addcslashes($v, '%_\\').'%')->orWhere('subject', \App\Support\DbCompat::like(), '%'.addcslashes($v, '%_\\').'%')))
             ->when(($f['assigned'] ?? null) === 'me', fn ($q) => $q->where('assigned_to', $request->user()->id))->when(($f['assigned'] ?? null) === 'none', fn ($q) => $q->whereNull('assigned_to'))
             ->orderByRaw("case status when 'open' then 0 when 'pending' then 1 else 2 end")->orderBy('last_activity_at')->paginate(25);
 

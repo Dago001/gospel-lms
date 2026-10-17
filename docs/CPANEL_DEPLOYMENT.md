@@ -1,4 +1,4 @@
-# Deploying GOSPEL LMS on cPanel (subdomain, PHP 8.3, PostgreSQL)
+# Deploying GOSPEL LMS on cPanel (subdomain, PHP 8.3, MySQL)
 
 Example names below use the subdomain `learn.stbenedictsacademy.com.ng` and the cPanel account `stbenedi`. Replace them with yours.
 This is a **temporary / staging** setup on shared hosting. It has not been run on your server by the author; follow the checks at the end.
@@ -11,12 +11,13 @@ This is a **temporary / staging** setup on shared hosting. It has not been run o
 
 ## 2. PHP version
 cPanel → **MultiPHP Manager** → select the subdomain → **PHP 8.3 (ea-php83)**.
-cPanel → **MultiPHP INI Editor / Select PHP Version → Extensions**: make sure `pdo_pgsql`, `pgsql`, `mbstring`, `gd`, `intl`, `zip`, `bcmath`, `fileinfo`, `curl`, `xml`, `openssl` are enabled for ea-php83. If `pdo_pgsql` is missing, ask your host to install `ea-php83-php-pgsql`.
+cPanel → **MultiPHP INI Editor / Select PHP Version → Extensions**: make sure `pdo_mysql`, `mysqlnd`, `mbstring`, `gd`, `intl`, `zip`, `bcmath`, `fileinfo`, `curl`, `xml`, `openssl` are enabled for ea-php83. If `pdo_mysql` is missing, ask your host to enable it for ea-php83.
 
-## 3. Database (cPanel → PostgreSQL Databases)
+## 3. Database (cPanel → MySQL Databases)
 1. Create a database, e.g. `lms` (cPanel names it `stbenedi_lms`).
 2. Create a user, e.g. `lmsuser` with a strong password (`stbenedi_lmsuser`).
-3. **Add the user to the database** with **ALL PRIVILEGES**.
+3. **Add the user to the database** with **ALL PRIVILEGES** (this includes TRIGGER, which the tamper-proof logs need).
+4. Needs MySQL 8.0.16+ or MariaDB 10.5+ (older versions silently ignore CHECK constraints). cPanel → MySQL Databases shows nothing about the version; run `mysql --version` in Terminal.
 
 ## 4. Upload the app
 1. cPanel → **File Manager** → your home folder (`/home/stbenedi`) → create folder `gospel-lms`.
@@ -29,14 +30,15 @@ cPanel → **MultiPHP INI Editor / Select PHP Version → Extensions**: make sur
 cd ~/gospel-lms/backend
 PHP=/opt/cpanel/ea-php83/root/usr/bin/php   # use $PHP below (the plain `php` command in Terminal may be an older version)
 $PHP -v                                   # must say 8.3.x
-$PHP -m | grep -i pgsql                   # must list pdo_pgsql and pgsql
+$PHP -m | grep -i mysql                   # must list pdo_mysql
 $PHP artisan key:generate --force
 $PHP artisan migrate --force
 $PHP artisan db:seed --class=RolesAndPermissionsSeeder --force
 $PHP artisan gospel:create-admin          # follow the prompts; this is your administrator
+$PHP artisan gospel:install-protections   # confirms the append-only log triggers exist
 $PHP artisan optimize
 ```
-Never run `StarterSeeder` or `SampleDataSeeder` here. The `pg_trgm` search-index extension is optional: if the host does not provide it, migrations skip it automatically.
+Never run `StarterSeeder` or `SampleDataSeeder` here. If migrations print a WARNING that triggers could not be created, ask the host to set `log_bin_trust_function_creators=1` (or grant TRIGGER/SUPER), then run `gospel:install-protections`; Admin → System shows the status.
 
 ## 6. Scheduled tasks (cPanel → **Cron Jobs**, add two, "Once Per Minute" `* * * * *`)
 ```
@@ -64,10 +66,10 @@ Admin → **Certificates → Template & layout** → upload your artwork (see `d
 Upload a new zip, extract over the old folder (keep `.env` and `storage/`), then in Terminal: `$PHP artisan migrate --force && $PHP artisan optimize:clear && $PHP artisan optimize`.
 
 ## Backups
-cPanel → **Backup** (or JetBackup) covers files; for the database also use cPanel's PostgreSQL backup or `$PHP artisan gospel:backup` (needs `pg_dump`, set `PG_DUMP_BIN` if it is not on the path). Download a copy off the server.
+cPanel → **Backup** (or JetBackup) covers files; for the database also use cPanel's Backup Wizard or `$PHP artisan gospel:backup` (needs `mysqldump`; set `MYSQLDUMP_BIN` if it is not on the path). Download a copy off the server.
 
 ## Limits of shared hosting
 Fine for a trial or a small pilot. Exams/queues run once per minute (not instantly); uploaded files live on the server disk (no S3); there is no Redis. For a larger launch use a VPS and follow `docs/DEPLOYMENT.md`.
 
 ## What was verified, and what was not
-Verified by the author: the zip builds; extracted with production vendor (no dev packages) under PHP 8.3, it migrated a fresh PostgreSQL database, seeded roles, served `/up` and the public API with `APP_ENV=production`, and ran the scheduler and queue worker. PHP 8.3 is the version the automated tests ran on. **Not verified:** Apache `.htaccess` behaviour on your host, cPanel cron timing, AutoSSL, and mail delivery.
+Verified by the author: the zip builds; extracted with production vendor (no dev packages) under PHP 8.3, it migrated a fresh PostgreSQL database; the same code also passes the full test suite on MySQL 8.0 (not yet MariaDB, nor your host's engine), seeded roles, served `/up` and the public API with `APP_ENV=production`, and ran the scheduler and queue worker. PHP 8.3 is the version the automated tests ran on. **Not verified:** Apache `.htaccess` behaviour on your host, cPanel cron timing, AutoSSL, and mail delivery.
