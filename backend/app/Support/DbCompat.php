@@ -62,7 +62,7 @@ class DbCompat
     /** Case-insensitive LIKE operator for the current engine (MySQL's default collation is already case-insensitive). */
     public static function like(): string
     {
-        return self::mysql() ? 'like' : \App\Support\DbCompat::like();
+        return self::mysql() ? 'like' : 'ilike';
     }
 
     /**
